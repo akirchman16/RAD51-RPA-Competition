@@ -44,7 +44,7 @@ RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are
 RPA_A_BoundAtSpot = zeros(1,N); %array to record where RPA-A is actively bound
 RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
-MaxTime = 1;  %maximum time the simulation runs to
+MaxTime = 1.5;  %maximum time the simulation runs to
 LocationHistory = zeros(14,1);  %Matrix used to store locations of all events. Same order as Full_Propensity
 
 % Initial Values
@@ -348,5 +348,5 @@ xlim([0 MaxTime]);
 ylabel('Saturation');
 ylim([0 1]);
 title('RAD51/RPA Competition Saturation');
-legend('RAD51','RPA-A','RPA-D','All RPA','Total','location','southoutside','orientation','horizontal');
+legend('RAD51','RPA-A','RPA-D','All RPA','Total','','eastoutside');
 box on;
