@@ -328,6 +328,10 @@ while max(t) <= MaxTime
         LocationHistory(14,Event_Count) = RPA_D_Micro_Bind_Spot;    %records where this event occured
     end
     
+    % Bug Fixing Tests - Checking for Whole Proteins
+    X_RAD51 = numel(find(DNA(2,:) == RAD51)/n_RAD51;
+    X_RPA_A = numel(find(DNA(2,:_
+    
     t(Event_Count+1) = t(Event_Count)+dt(Event_Count);  %advance time according to time interval selected by Gillespie Algorithm
     FracCover_RAD51(Event_Count+1) = numel(find(DNA(2,:) == RAD51))/N; %RAD51 saturation of the DNA lattice after each event
     FracCover_RPA_A(Event_Count+1) = numel(find(DNA(2,:) == RPA_A))/N;  %saturation of RPA-A
