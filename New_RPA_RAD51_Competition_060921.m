@@ -8,7 +8,7 @@ close all;
 % (which has a lower affinity for ssDNA). Both proteins can bind and unbind
 % whenever as long as there are available locations for it.
 
-N = 1000;   %length of ssDNA lattice
+N = 100;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
@@ -33,7 +33,7 @@ k_on_RPAd = 8;  %kinetic rate constant for RPA-D binding to ssDNA
 k_off_RPAa = 1; %kinetic rate constant for RPA-A dissociating from ssDNA
 k_off_RPAd = 1; %kinetic rate constant for RPA-D dissociating from ssDNA
 
-n_RPA = sum(n_A,n_D);   %calculates total length of RPA molecule
+n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Memory Allocation
 DNA = zeros(2,N);   %array to represent DNA
@@ -105,7 +105,7 @@ while max(t) <= MaxTime
     end
     RPA_SC = unique([RPA_Available_Gap_Edges(1,:),RPA_Available_Gap_Edges(2,:)-(n_RPA-1)]);   %positions of all locations at the edges of gaps available for RPA
     RPA_SC(ismember(RPA_SC,RPA_DC)) = [];     %clears locations that have already been counted as a DC location
-    if DNA(2,n_RPA) ~= RPA_A   %if the first location isn't SC...
+    if DNA(2,n_RPA+1) ~= RPA_A   %if the first location isn't SC...
         RPA_SC(RPA_SC == 1) = [];   %...clear it
     end
     if DNA(2,N-(n_RPA-1)-1) ~= RPA_D       %if the final available location on lattice isn't SC...
@@ -119,36 +119,36 @@ while max(t) <= MaxTime
     for a = 1:length(RAD51_M_Available_I_Gap_Edges(1,:))
         RAD51_Mon_I = [RAD51_Mon_I, RAD51_M_Available_I_Gap_Edges(1,a)+1:1:RAD51_M_Available_I_Gap_Edges(2,a)-n_RAD51]; %adds sequential locations that are isolated locations available for RAD51 Mon
     end
-    if DNA(2,n_RAD51+1) ~= RAD51   %if left end of lattice isn't SC...
-        RAD51_Mon_I = [1,RAD51_Mon_I];  %...add the first location to the list
-    end
-    if DNA(2,N-(n_RAD51+1)) ~= RAD51   %if the right end of the lattice isn't SC...
-        RAD51_Mon_I = [RAD51_Mon_I,N-(n_RAD51-1)];  %...add the last location to the list
-    end
+%     if DNA(2,n_RAD51+1) == 0   %if left end of lattice isn't SC...
+%         RAD51_Mon_I = [1,RAD51_Mon_I];  %...add the first location to the list
+%     end
+%     if DNA(2,N-(n_RAD51+1)) == 0   %if the right end of the lattice isn't SC...
+%         RAD51_Mon_I = [RAD51_Mon_I,N-(n_RAD51-1)];  %...add the last location to the list
+%     end
     RAD51_Dim_I = [];   %initializes an empty array for RAD51 dimer isolated available sites
     Gap_Size_RAD51_D = Gap_Size(Gap_Size > 2*n_RAD51);    %gap sizes large enough for RAD51 Dimers
     RAD51_D_Available_I_Gap_Edges = RAD51_D_Available_Gap_Edges(:,ismember(Gap_Size_RAD51_D,Gap_Size));  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
     for b = 1:length(RAD51_D_Available_I_Gap_Edges(1,:))
         RAD51_Dim_I = [RAD51_Dim_I, RAD51_D_Available_I_Gap_Edges(1,b)+1:1:RAD51_D_Available_I_Gap_Edges(2,b)-(2*n_RAD51)]; %adds sequential locations that are isolated locations available for RAD51 Dim
     end
-    if DNA(2,(2*n_RAD51)+1) ~= RAD51   %if left end of lattice isn't SC...
-        RAD51_Dim_I = [1,RAD51_Dim_I];  %...add the first location to the list
-    end
-    if DNA(2,N-(2*n_RAD51+1)) ~= RAD51   %if the right end of the lattice isn't SC...
-        RAD51_Dim_I = [RAD51_Dim_I,N-(2*n_RAD51-1)];  %...add the last location to the list
-    end
+%     if DNA(2,(2*n_RAD51)+1) == 0   %if left end of lattice isn't SC...
+%         RAD51_Dim_I = [1,RAD51_Dim_I];  %...add the first location to the list
+%     end
+%     if DNA(2,N-(2*n_RAD51+1)) == 0   %if the right end of the lattice isn't SC...
+%         RAD51_Dim_I = [RAD51_Dim_I,N-(2*n_RAD51-1)];  %...add the last location to the list
+%     end
     RPA_I = [];   %initializes an empty array for RPA isolated available sites
     Gap_Size_RPA = Gap_Size(Gap_Size > n_RPA);  %gap sizes which are large enough for RPA isolated binding
     RPA_Available_I_Gap_Edges = RPA_Available_Gap_Edges(:,ismember(Gap_Size_RPA,Gap_Size));  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
     for c = 1:length(RPA_Available_I_Gap_Edges(1,:))
         RPA_I = [RPA_I, RPA_Available_I_Gap_Edges(1,c)+1:1:RPA_Available_I_Gap_Edges(2,c)-n_RPA]; %adds sequential locations that are isolated locations available for RAD51 Mon
     end
-    if DNA(2,n_RPA+1) ~= RPA_A   %if left end of lattice isn't SC...
-        RPA_I = [1,RPA_I];  %...add the first location to the list
-    end
-    if DNA(2,N-(n_RPA+1)) ~= RPA_D   %if the right end of the lattice isn't SC...
-        RPA_I = [RPA_I,N-(n_RPA-1)];  %...add the last location to the list
-    end
+%     if DNA(2,n_RPA+1) == 0   %if left end of lattice isn't SC...
+%         RPA_I = [1,RPA_I];  %...add the first location to the list
+%     end
+%     if DNA(2,N-(n_RPA+1)) == 0   %if the right end of the lattice isn't SC...
+%         RPA_I = [RPA_I,N-(n_RPA-1)];  %...add the last location to the list
+%     end
     
     Populations = [numel(RAD51_Mon_I),numel(RAD51_Mon_SC),numel(RAD51_Mon_DC),numel(RAD51_Dim_I),numel(RAD51_Dim_SC),numel(RAD51_Dim_DC),numel(RPA_I),numel(RPA_SC),numel(RPA_DC)];
                 %populations of the available locations listed in order
@@ -329,18 +329,22 @@ while max(t) <= MaxTime
     end
     
     %Bug Checking - Finding Whole Proteins
-    if ~isinteger(numel(find(DNA(2,:) == RAD51))/n_RAD51) && numel(find(DNA(2,:) == RAD51))/n_RAD51 ~= 0
+    if numel(find(DNA(2,:) == RAD51))/n_RAD51 ~= round(numel(find(DNA(2,:) == RAD51))/n_RAD51)  %checks if there are an integer number of RAD51 proteins
         disp('ERROR: BROKEN RAD51');
-        break
-    elseif ~isinteger(numel(find(DNA(2,:) == RPA_A))/n_A) && numel(find(DNA(2,:) == RPA_A))/n_A ~= 0
+        disp(['Last Reaction: ', num2str(j(end))]);
+        break;
+    elseif numel(find(DNA(2,:) == RPA_A))/n_A ~= round(numel(find(DNA(2,:) == RPA_A))/n_A)     %checks if there is an integer number of RPA-A bound
         disp('ERROR: BROKEN RPA-A');
-        break
-    elseif ~isinteger(numel(find(DNA(2,:) == RPA_D))/n_D) && numel(find(DNA(2,:) == RPA_D))/n_D ~= 0
+        disp(['Last Reaction: ', num2str(j(end))]);
+        break;
+    elseif numel(find(DNA(2,:) == RPA_D))/n_D ~= round(numel(find(DNA(2,:) == RPA_D))/n_D)      %checks for an integer number of bound RPA_D
         disp('ERROR: BROKEN RPA-D (Bound)');
-        break
-    elseif ~isinteger(numel(find(DNA(1,:) == RPA_D))/n_D) && numel(find(DNA(1,:) == RPA_D))/n_D ~= 0
+        disp(['Last Reaction: ', num2str(j(end))]);
+        break;
+    elseif numel(find(DNA(1,:) == RPA_D))/n_D ~= round(numel(find(DNA(1,:) == RPA_D))/n_D)      %checks for an integer number of hinged open RPA-D
         disp('ERROR: BROKEN RPA-D (Open)');
-        break
+        disp(['Last Reaction: ', num2str(j(end))]);
+        break;
     end
         
     t(Event_Count+1) = t(Event_Count)+dt(Event_Count);  %advance time according to time interval selected by Gillespie Algorithm
