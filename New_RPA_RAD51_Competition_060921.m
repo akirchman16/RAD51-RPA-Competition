@@ -8,7 +8,7 @@ close all;
 % (which has a lower affinity for ssDNA). Both proteins can bind and unbind
 % whenever as long as there are available locations for it.
 
-N = 100;   %length of ssDNA lattice
+N = 8660;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
@@ -26,11 +26,11 @@ RPA_A = 1;  %value to represent A piece of RPA on lattice
 RPA_D = 3;  %value to represent D piece of RPA on lattice
 n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
-L_RPA = 1;  %concentration of RPA in solution
-w_RPA = 1;  %cooperativity parameter of RPA (for macroscopic binding)
-k_on_RPAa = 10; %kinetic rate constant for RPA-A binding to ssDNA
-k_on_RPAd = 8;  %kinetic rate constant for RPA-D binding to ssDNA
-k_off_RPAa = 1; %kinetic rate constant for RPA-A dissociating from ssDNA
+L_RPA = 2;  %concentration of RPA in solution
+w_RPA = 5;  %cooperativity parameter of RPA (for macroscopic binding)
+k_on_RPAa = 15; %kinetic rate constant for RPA-A binding to ssDNA
+k_on_RPAd = 10;  %kinetic rate constant for RPA-D binding to ssDNA
+k_off_RPAa = 0.5; %kinetic rate constant for RPA-A dissociating from ssDNA
 k_off_RPAd = 1; %kinetic rate constant for RPA-D dissociating from ssDNA
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
@@ -44,7 +44,7 @@ RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are
 RPA_A_BoundAtSpot = zeros(1,N); %array to record where RPA-A is actively bound
 RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
-MaxTime = 1;  %maximum time the simulation runs to
+MaxTime = 2;  %maximum time the simulation runs to
 LocationHistory = zeros(14,1);  %Matrix used to store locations of all events. Same order as Full_Propensity
 
 % Initial Values
@@ -65,14 +65,15 @@ while max(t) <= MaxTime
     Event_Count = Event_Count+1;    %advances event counter
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    SearchVars1 = {'Gap_Left','Gap_Right','Gap_Size','RAD51_M_Available_Gap_Edges','RAD51_D_Available_Gap_Edges','RPA_Available_Gap_Edges','RAD51_Mon_DC','RAD51_Dim_DC','RPA_DC','RAD51_Mon_SC','RAD51_Dim_SC','RPA_SC'};    %variables used in Search Process
-    SearchVars2 = {'Gap_Size_RAD51_M','RAD51_M_Available_I_Gap_Edges','Gap_Size_RAD51_D','RAD51_D_Available_I_Gap_Edges','Gap_Size_RPA','RPA_Available_I_Gap_Edges','RAD51_Filament_Edges','RAD51_Filament_Lengths','RAD51_D_Filament_Locations','RAD51_D_Filament_Lengths','Monomers_per_Dimer_Filament'};    %more search variables
+    SearchVars1 = {'Gap_Left','Gap_Right','Gap_Size','Gap_Edges','RAD51_M_Available_Gap_Edges','RAD51_D_Available_Gap_Edges','RPA_Available_Gap_Edges','RAD51_Mon_DC','RAD51_Dim_DC','RPA_DC','RAD51_Mon_SC','RAD51_Dim_SC','RPA_SC'};    %variables used in Search Process
+    SearchVars2 = {'Gap_Size_RAD51_M_I','RAD51_M_Available_I_Gap_Edges','Gap_Size_RAD51_D_I','RAD51_D_Available_I_Gap_Edges','Gap_Size_RPA_I','RPA_Available_I_Gap_Edges','RAD51_Filament_Edges','RAD51_Filament_Lengths','RAD51_D_Filament_Locations','RAD51_D_Filament_Lengths','Monomers_per_Dimer_Filament'};    %more search variables
     clear SearchVars1;   %clear all search variables that would otherwise overlap
     clear SearchVars2;   %clear all search variables that would otherwise overlap
     
     Gap_Left = find(diff([1 DNA(2,:) 1])<0 & diff([1 DNA(2,:) 1]) ~= RPA_A-RPA_D & diff([1 DNA(2,:) 1]) ~=RPA_D-RAD51 & diff([1 DNA(2,:) 1]) ~= RPA_A-RAD51);    %left most available location of all gaps on lattice
     Gap_Right = find(diff([1 DNA(2,:) 1])>0 & diff([1 DNA(2,:) 1]) ~= RPA_D-RPA_A & diff([1 DNA(2,:) 1]) ~= RAD51-RPA_D & diff([1 DNA(2,:) 1]) ~= RAD51-RPA_A)-1; %right most available location of all gaps on lattice
     Gap_Size = (Gap_Right-Gap_Left)+1;    %calculates the size of each gap
+    Gap_Edges = [Gap_Left;Gap_Right];   %lists all gap edges (1st row = left edge, 2nd row = right edge)
     
     RAD51_M_Available_Gap_Edges = [Gap_Left(Gap_Size >= n_RAD51);Gap_Right(Gap_Size >= n_RAD51)];   %lists the left (1st row) and right (2nd row) edges
                                                                                                     %of gaps large enough for RAD51 monomers
@@ -89,66 +90,69 @@ while max(t) <= MaxTime
     %Singly Contiguous Search
     RAD51_Mon_SC = unique([RAD51_M_Available_Gap_Edges(1,:),RAD51_M_Available_Gap_Edges(2,:)-(n_RAD51-1)]); %position of all locations at the edges of gaps available for RAD51 Mon.
     RAD51_Mon_SC(ismember(RAD51_Mon_SC,RAD51_Mon_DC)) = [];     %clears location if it's already been recorded as a DC location
+    RAD51_Mon_SC(ismember(RAD51_Mon_SC,find(diff([0 DNA(2,:) 0]) == RPA_A)-n_RAD51) == 1 | ismember(RAD51_Mon_SC,find(diff([0 DNA(2,:) 0]) == RPA_D)-n_RAD51) == 1 | ismember(RAD51_Mon_SC,find(diff([0 DNA(2,:) 0]) == -RPA_A)) == 1 | ismember(RAD51_Mon_SC,find(diff([0 DNA(2,:) 0]) == -RPA_D)) == 1) = []; %clears any position that neighbors a protein other than RAD51 
     if DNA(2,n_RAD51+1) ~= RAD51    %if the first location isn't SC...
         RAD51_Mon_SC(RAD51_Mon_SC == 1) = [];   %...clear it
     end
-    if DNA(2,N-(n_RAD51-1)-1) ~= RAD51       %if the final available location on lattice isn't SC...
+    if DNA(2,N-n_RAD51) ~= RAD51       %if the final available location on lattice isn't SC...
         RAD51_Mon_SC(RAD51_Mon_SC == N-(n_RAD51-1)) = [];   %...clear it
     end
     RAD51_Dim_SC = unique([RAD51_D_Available_Gap_Edges(1,:),RAD51_D_Available_Gap_Edges(2,:)-(2*n_RAD51-1)]);   %positions of all locations at the edges of gaps available for RAD51 Dim.
     RAD51_Dim_SC(ismember(RAD51_Dim_SC,RAD51_Dim_DC)) = [];     %clears locations that have already been counted as a DC location
+    RAD51_Dim_SC(ismember(RAD51_Dim_SC,find(diff([0 DNA(2,:) 0]) == RPA_A)-(2*n_RAD51)) == 1 | ismember(RAD51_Dim_SC,find(diff([0 DNA(2,:) 0]) == RPA_D)-(2*n_RAD51)) == 1 | ismember(RAD51_Dim_SC,find(diff([0 DNA(2,:) 0]) == -RPA_A)) == 1 | ismember(RAD51_Dim_SC,find(diff([0 DNA(2,:) 0]) == -RPA_D)) == 1) = []; %clears all position that neighbor a protein other than RAD51
     if DNA(2,2*n_RAD51+1) ~= RAD51    %if the first location isn't SC...
         RAD51_Dim_SC(RAD51_Dim_SC == 1) = [];   %...clear it
     end
-    if DNA(2,N-(2*n_RAD51-1)-1) ~= RAD51       %if the final available location on lattice isn't SC...
+    if DNA(2,N-(2*n_RAD51)) ~= RAD51       %if the final available location on lattice isn't SC...
         RAD51_Dim_SC(RAD51_Dim_SC == N-(2*n_RAD51-1)) = [];   %...clear it
     end
     RPA_SC = unique([RPA_Available_Gap_Edges(1,:),RPA_Available_Gap_Edges(2,:)-(n_RPA-1)]);   %positions of all locations at the edges of gaps available for RPA
     RPA_SC(ismember(RPA_SC,RPA_DC)) = [];     %clears locations that have already been counted as a DC location
+    RPA_SC(ismember(RPA_SC,find(diff([0 DNA(2,:) 0]) == RAD51)-n_RPA) == 1 | ismember(RPA_SC,find(diff([0 DNA(2,:) 0]) == -RAD51)) == 1) = []; %clears all locations that don't neighbor an RPA protein (A or D)
     if DNA(2,n_RPA+1) ~= RPA_A   %if the first location isn't SC...
         RPA_SC(RPA_SC == 1) = [];   %...clear it
     end
-    if DNA(2,N-(n_RPA-1)-1) ~= RPA_D       %if the final available location on lattice isn't SC...
+    if DNA(2,N-n_RPA) ~= RPA_D & DNA(2,N-n_RPA) ~= RPA_A     %if the final available location on lattice isn't SC...
         RPA_SC(RPA_SC == N-(n_RPA-1)) = [];   %...clear it
     end
     
     %Isolated Search
     RAD51_Mon_I = [];   %initializes an empty array for RAD51 monomer isolated available sites
-    Gap_Size_RAD51_M = Gap_Size(Gap_Size > n_RAD51);    %gap sizes of gaps large enough for a RAD51 monomer to bind
-    RAD51_M_Available_I_Gap_Edges = RAD51_M_Available_Gap_Edges(:,ismember(Gap_Size_RAD51_M,Gap_Size));  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
+    Gap_Size_RAD51_M_I = Gap_Size(Gap_Size > n_RAD51+1);    %gap sizes of gaps large enough for a RAD51 monomer to bind in an isolated position
+    RAD51_M_Available_I_Gap_Edges = Gap_Edges(:,ismember(Gap_Size,Gap_Size_RAD51_M_I) == 1);  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
     for a = 1:length(RAD51_M_Available_I_Gap_Edges(1,:))
         RAD51_Mon_I = [RAD51_Mon_I, RAD51_M_Available_I_Gap_Edges(1,a)+1:1:RAD51_M_Available_I_Gap_Edges(2,a)-n_RAD51]; %adds sequential locations that are isolated locations available for RAD51 Mon
     end
-%     if DNA(2,n_RAD51+1) == 0   %if left end of lattice isn't SC...
-%         RAD51_Mon_I = [1,RAD51_Mon_I];  %...add the first location to the list
-%     end
-%     if DNA(2,N-(n_RAD51+1)) == 0   %if the right end of the lattice isn't SC...
-%         RAD51_Mon_I = [RAD51_Mon_I,N-(n_RAD51-1)];  %...add the last location to the list
-%     end
+    if DNA(2,n_RAD51) ~= RAD51 & DNA(2,1:n_RAD51) == 0   %if left end of lattice is available and isn't SC...
+        RAD51_Mon_I = [1,RAD51_Mon_I];  %...add the first location to the list
+    end
+    if DNA(2,N-n_RAD51) ~= RAD51 & DNA(2,N-(n_RAD51-1):end) == 0   %if the right end of the lattice is available and isn't SC...
+        RAD51_Mon_I = [RAD51_Mon_I,N-(n_RAD51-1)];  %...add the last location to the list
+    end
     RAD51_Dim_I = [];   %initializes an empty array for RAD51 dimer isolated available sites
-    Gap_Size_RAD51_D = Gap_Size(Gap_Size > 2*n_RAD51);    %gap sizes large enough for RAD51 Dimers
-    RAD51_D_Available_I_Gap_Edges = RAD51_D_Available_Gap_Edges(:,ismember(Gap_Size_RAD51_D,Gap_Size));  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
+    Gap_Size_RAD51_D_I = Gap_Size(Gap_Size > 2*n_RAD51+1);    %gap sizes large enough for RAD51 Dimers
+    RAD51_D_Available_I_Gap_Edges = Gap_Edges(:,ismember(Gap_Size,Gap_Size_RAD51_D_I));  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
     for b = 1:length(RAD51_D_Available_I_Gap_Edges(1,:))
         RAD51_Dim_I = [RAD51_Dim_I, RAD51_D_Available_I_Gap_Edges(1,b)+1:1:RAD51_D_Available_I_Gap_Edges(2,b)-(2*n_RAD51)]; %adds sequential locations that are isolated locations available for RAD51 Dim
     end
-%     if DNA(2,(2*n_RAD51)+1) == 0   %if left end of lattice isn't SC...
-%         RAD51_Dim_I = [1,RAD51_Dim_I];  %...add the first location to the list
-%     end
-%     if DNA(2,N-(2*n_RAD51+1)) == 0   %if the right end of the lattice isn't SC...
-%         RAD51_Dim_I = [RAD51_Dim_I,N-(2*n_RAD51-1)];  %...add the last location to the list
-%     end
+    if DNA(2,1:2*n_RAD51) == 0 & DNA(2,(2*n_RAD51)+1) ~= RAD51   %if left end of lattice is available and isn't SC...
+        RAD51_Dim_I = [1,RAD51_Dim_I];  %...add the first location to the list
+    end
+    if DNA(2,N-(2*n_RAD51-1):end) == 0 & DNA(2,N-(2*n_RAD51)) ~= RAD51   %if the right end of the lattice isn't SC...
+        RAD51_Dim_I = [RAD51_Dim_I,N-(2*n_RAD51-1)];  %...add the last location to the list
+    end
     RPA_I = [];   %initializes an empty array for RPA isolated available sites
     Gap_Size_RPA = Gap_Size(Gap_Size > n_RPA);  %gap sizes which are large enough for RPA isolated binding
-    RPA_Available_I_Gap_Edges = RPA_Available_Gap_Edges(:,ismember(Gap_Size_RPA,Gap_Size));  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
+    RPA_Available_I_Gap_Edges = Gap_Edges(:,ismember(Gap_Size,Gap_Size_RPA));  %lists of gap edges (left = 1st row, right = 2nd row) that are large enough for any isolated binding
     for c = 1:length(RPA_Available_I_Gap_Edges(1,:))
         RPA_I = [RPA_I, RPA_Available_I_Gap_Edges(1,c)+1:1:RPA_Available_I_Gap_Edges(2,c)-n_RPA]; %adds sequential locations that are isolated locations available for RAD51 Mon
     end
-%     if DNA(2,n_RPA+1) == 0   %if left end of lattice isn't SC...
-%         RPA_I = [1,RPA_I];  %...add the first location to the list
-%     end
-%     if DNA(2,N-(n_RPA+1)) == 0   %if the right end of the lattice isn't SC...
-%         RPA_I = [RPA_I,N-(n_RPA-1)];  %...add the last location to the list
-%     end
+    if DNA(2,1:n_RPA) == 0 & DNA(2,n_RPA+1) ~= RPA_A   %if left end of lattice is available and isn't SC...
+        RPA_I = [1,RPA_I];  %...add the first location to the list
+    end
+    if DNA(2,N-(n_RPA-1):end) == 0 & DNA(2,N-(n_RPA+1)) ~= RPA_A & DNA(2,N-(n_RPA+1)) ~= RPA_D  %if the right end of the lattice is available and isn't SC...
+        RPA_I = [RPA_I,N-(n_RPA-1)];  %...add the last location to the list
+    end
     
     Populations = [numel(RAD51_Mon_I),numel(RAD51_Mon_SC),numel(RAD51_Mon_DC),numel(RAD51_Dim_I),numel(RAD51_Dim_SC),numel(RAD51_Dim_DC),numel(RPA_I),numel(RPA_SC),numel(RPA_DC)];
                 %populations of the available locations listed in order
@@ -295,6 +299,7 @@ while max(t) <= MaxTime
         RAD51_D_Unbind_Spot = RAD51_Bound_Dimers(randi(numel(RAD51_Bound_Dimers))); %randomly selects dimer to unbind from lattice
         DNA(2,RAD51_D_Unbind_Spot:RAD51_D_Unbind_Spot+(2*n_RAD51-1)) = 0;   %unbinds the dimer
         RAD51_Dim_BoundAtSpot(RAD51_D_Unbind_Spot) = 0; %removes location from BoundAtSpot (not necessary)
+        RAD51_Mon_BoundAtSpot([RAD51_D_Unbind_Spot,RAD51_D_Unbind_Spot+n_RAD51]) = 0; %removes location from RAD51 Mon. BoundAtSpot record array
         LocationHistory(11,Event_Count) = RAD51_D_Unbind_Spot;  %records where this event occured
     elseif sum(Full_Propensity(1:12)) > Randoms(2)*a_0 %RPA Macro Dissociation
         j(Event_Count) = 12; %records which reaction occured
@@ -325,6 +330,7 @@ while max(t) <= MaxTime
         DNA(2,RPA_D_Micro_Bind_Spot:RPA_D_Micro_Bind_Spot+(n_D-1)) = RPA_D; %binds RPA-D to the DNA lattice
         DNA(1,RPA_D_Micro_Bind_Spot:RPA_D_Micro_Bind_Spot+(n_D-1)) = 0; %clears RPA-D from being hinged open
         RPA_D_BoundAtSpot(RPA_D_Micro_Bind_Spot) = 1;   %records that RPA-D is now bound to the DNA lattice
+        RPA_D_HingedOpen(RPA_D_Micro_Bind_Spot) = 0;    %records that RPA-D is no longer hinged open
         LocationHistory(14,Event_Count) = RPA_D_Micro_Bind_Spot;    %records where this event occured
     end
     
