@@ -44,8 +44,9 @@ RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are
 RPA_A_BoundAtSpot = zeros(1,N); %array to record where RPA-A is actively bound
 RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
-MaxTime = 2;  %maximum time the simulation runs to
 LocationHistory = zeros(14,1);  %Matrix used to store locations of all events. Same order as Full_Propensity
+
+MaxTime = 5;  %maximum time the simulation runs to
 
 % Initial Values
 t(1) = 0;   %initial time is zero
