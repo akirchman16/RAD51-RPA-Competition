@@ -49,7 +49,7 @@ RPA_A_Timer = zeros(1,N);   %set of timers to record dwell time of RPA-A protein
 RPA_D_Timer = zeros(1,N);   %set of timers to record dwell time of RPA-D proteins
 LocationHistory = zeros(14,1);  %Matrix used to store locations of all events. Same order as Full_Propensity
 
-MaxTime = 5;  %maximum time the simulation runs to
+MaxTime = 6;  %maximum time the simulation runs to
 
 % Initial Values
 t(1) = 0;   %initial time is zero
@@ -401,21 +401,21 @@ box on;
 
 figure(2);  %histograms of dwell times of different proteins
 subplot(1,3,1);
-histogram(RAD51_DwellTime,round(sqrt(numel(RAD51_DwellTime)))); %RAD51 Dwell Times
+histogram(RAD51_DwellTime,round(sqrt(numel(RAD51_DwellTime))),'Normalization','probability','FaceColor','r'); %RAD51 Dwell Times
 hold on;
 xlim([0 inf]);
 ylim([0 inf]);
-ylabel('Count');
+ylabel('Probability');
 title('RAD51');
 subplot(1,3,2);
-histogram(RPA_A_DwellTime,round(sqrt(numel(RPA_A_DwellTime)))); %RPA-A Dwell Times
+histogram(RPA_A_DwellTime,round(sqrt(numel(RPA_A_DwellTime))),'Normalization','probability','FaceColor','c'); %RPA-A Dwell Times
 hold on;
 xlim([0 inf]);
 ylim([0 inf]);
 xlabel('Dwell Time');
 title('RPA-A');
 subplot(1,3,3);
-histogram(RPA_D_DwellTime,round(sqrt(numel(RPA_A_DwellTime)))); %RPA-D Dwell Times
+histogram(RPA_D_DwellTime,round(sqrt(numel(RPA_A_DwellTime))),'Normalization','probability','FaceColor','b'); %RPA-D Dwell Times
 hold on;
 xlim([0 inf]);
 ylim([0 inf]);
