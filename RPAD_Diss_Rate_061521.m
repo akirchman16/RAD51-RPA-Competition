@@ -13,9 +13,9 @@ N = 8660;   %length of ssDNA lattice
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
 L_RAD51_Total = 2;  %total concentration of RAD51 in solution
-Percent_M_RAD51 = 1;    %percentage of RAD51 solution which is monomers
-w_RAD51 = 1;    %cooperativity parameter for RAD51
-k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
+Percent_M_RAD51 = 0.6;    %percentage of RAD51 solution which is monomers (0 to 1)
+w_RAD51 = 5;    %cooperativity parameter for RAD51
+k_on_RAD51 = 0.5;     %kinetic rate constant for RAD51 binding to ssDNA
 k_off_RAD51 = 1;    %kinetic rate constant for RAD51 dissociating from ssDNA
 
 L_RAD51_M = L_RAD51_Total*Percent_M_RAD51;  %calculates concentration of RAD51 monomers
@@ -27,11 +27,11 @@ RPA_D = 3;  %value to represent D piece of RPA on lattice
 n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
 L_RPA = 2;  %concentration of RPA in solution
-w_RPA = 5;  %cooperativity parameter of RPA (for macroscopic binding)
-k_on_RPAa = 15; %kinetic rate constant for RPA-A binding to ssDNA
-k_on_RPAd = 10;  %kinetic rate constant for RPA-D binding to ssDNA
-k_off_RPAa = 0.5; %kinetic rate constant for RPA-A dissociating from ssDNA
-k_off_RPAd = 1; %kinetic rate constant for RPA-D dissociating from ssDNA
+w_RPA = 10;  %cooperativity parameter of RPA (for macroscopic binding)
+k_on_RPAa = 50; %kinetic rate constant for RPA-A binding to ssDNA
+k_on_RPAd = 20;  %kinetic rate constant for RPA-D binding to ssDNA
+k_off_RPAa = 0.1; %kinetic rate constant for RPA-A dissociating from ssDNA
+k_off_RPAd = 0.3; %kinetic rate constant for RPA-D dissociating from ssDNA
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -402,4 +402,5 @@ box on;
 
 Avg_RPA_D_Velocity = sum(RPA_D_Velocity)/numel(RPA_D_Velocity); %average velocity of RPA-D dissociation
 disp(['Average RPA Dissociation Velocity = ', num2str(round(Avg_RPA_D_Velocity,2)), ' Events/Time Interval']);  %display average velocity rounded to 2 decimal places
-disp(['Standard Deviation = ', num2str(round(std(RPA_D_Velocity),2)), '(', num2str((round(std(RPA_D_Velocity),2)/round(Avg_RPA_D_Velocity,2))*100),'%)']);    %displays standard deviation (percentage error)
+Error_RPA_D_Velocity = std(RPA_D_Velocity)/sqrt(numel(RPA_D_Velocity)); %error (std/square root of elements)
+disp(['Error = ', num2str(round(Error_RPA_D_Velocity,2)), '(', num2str((round(Error_RPA_D_Velocity/(Avg_RPA_D_Velocity),2)*100)),'%)']);    %displays standard deviation (percentage error)
