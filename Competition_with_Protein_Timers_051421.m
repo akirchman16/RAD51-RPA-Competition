@@ -13,7 +13,7 @@ N = 8660;   %length of ssDNA lattice
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
 L_RAD51_Total = 2;  %total concentration of RAD51 in solution
-Percent_M_RAD51 = 1;    %percentage of RAD51 solution which is monomers
+Percent_M_RAD51 = 0.3;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
 k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
 k_off_RAD51 = 1;    %kinetic rate constant for RAD51 dissociating from ssDNA
@@ -28,10 +28,10 @@ n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
 L_RPA = 2;  %concentration of RPA in solution
 w_RPA = 5;  %cooperativity parameter of RPA (for macroscopic binding)
-k_on_RPAa = 15; %kinetic rate constant for RPA-A binding to ssDNA
+k_on_RPAa = 50; %kinetic rate constant for RPA-A binding to ssDNA
 k_on_RPAd = 10;  %kinetic rate constant for RPA-D binding to ssDNA
-k_off_RPAa = 0.5; %kinetic rate constant for RPA-A dissociating from ssDNA
-k_off_RPAd = 1; %kinetic rate constant for RPA-D dissociating from ssDNA
+k_off_RPAa = 0.1; %kinetic rate constant for RPA-A dissociating from ssDNA
+k_off_RPAd = 0.1; %kinetic rate constant for RPA-D dissociating from ssDNA
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,7 +40,6 @@ DNA = zeros(2,N);   %array to represent DNA
                     %top row is used to store locations of hinged open RPA-D
                     %bottom row actually represents the DNA itself
 RAD51_Mon_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Monomers are bound
-RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are bound on the lattice
 RPA_A_BoundAtSpot = zeros(1,N); %array to record where RPA-A is actively bound
 RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
@@ -186,6 +185,7 @@ while max(t) <= MaxTime
     x_Bound_RPA_A(Event_Count) = numel(find(DNA(2,:) == RPA_A))/n_A;    %calculates the number of bound RPA-A
     x_Bound_RPA_D(Event_Count) = numel(find(DNA(2,:) == RPA_D))/n_D;    %calculates the number of actively bound RPA-D
     %Search for RAD51 Dimers (Uses Filament Lengths)
+    RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are bound on the lattice
     RAD51_Filament_Edges = [find(diff([0 DNA(2,:) 0]) == 51 | diff([0 DNA(2,:) 0]) == 50 | diff([0 DNA(2,:) 0]) == 48);find(diff([0 DNA(2,:) 0]) == -51 | diff([0 DNA(2,:) 0]) == -50 | diff([0 DNA(2,:) 0]) == -48)-1];  %edges of RAD51 filaments (left = 1st row; right = 2nd row)
     RAD51_Filament_Lengths = RAD51_Filament_Edges(2,:)-RAD51_Filament_Edges(1,:)+1; %length of each RAD51 Filament on the lattice
     RAD51_D_Filament_Locations = RAD51_Filament_Edges(1,RAD51_Filament_Lengths > n_RAD51);  %location of all filaments which contain a dimer
@@ -399,10 +399,15 @@ title('RAD51/RPA Competition Saturation');
 legend('RAD51','RPA-A','RPA-D','All RPA','Total','location','southoutside','orientation','horizontal');
 box on;
 
+Avg_RAD51_DwellTime = sum(RAD51_DwellTime)/numel(RAD51_DwellTime);  %average RAD51 dwell time
+Avg_RPA_A_DwellTime = sum(RPA_A_DwellTime)/numel(RPA_A_DwellTime);  %average RPA-A dwell time
+Avg_RPA_D_DwellTime = sum(RPA_D_DwellTime)/numel(RPA_D_DwellTime);  %average RPA-D dwell time
+
 figure(2);  %histograms of dwell times of different proteins
 subplot(1,3,1);
 histogram(RAD51_DwellTime,round(sqrt(numel(RAD51_DwellTime))),'Normalization','probability','FaceColor','r'); %RAD51 Dwell Times
 hold on;
+xline(Avg_RAD51_DwellTime,'--k',['Mean (', num2str(round(Avg_RAD51_DwellTime,2)), ')']);
 xlim([0 inf]);
 ylim([0 inf]);
 ylabel('Probability');
@@ -410,6 +415,7 @@ title('RAD51');
 subplot(1,3,2);
 histogram(RPA_A_DwellTime,round(sqrt(numel(RPA_A_DwellTime))),'Normalization','probability','FaceColor','c'); %RPA-A Dwell Times
 hold on;
+xline(Avg_RPA_A_DwellTime,'--k',['Mean (', num2str(round(Avg_RPA_A_DwellTime,2)), ')']);
 xlim([0 inf]);
 ylim([0 inf]);
 xlabel('Dwell Time');
@@ -417,6 +423,7 @@ title('RPA-A');
 subplot(1,3,3);
 histogram(RPA_D_DwellTime,round(sqrt(numel(RPA_A_DwellTime))),'Normalization','probability','FaceColor','b'); %RPA-D Dwell Times
 hold on;
+xline(Avg_RPA_D_DwellTime,'--k',['Mean (', num2str(round(Avg_RPA_D_DwellTime,2)), ')']);
 xlim([0 inf]);
 ylim([0 inf]);
 title('RPA-D');
