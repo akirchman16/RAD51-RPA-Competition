@@ -8,7 +8,7 @@ close all;
 % (which has a lower affinity for ssDNA). Both proteins can bind and unbind
 % whenever as long as there are available locations for it.
 
-N = 8660;   %length of ssDNA lattice
+N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
@@ -355,6 +355,7 @@ while max(t) <= MaxTime
     end
         
     t(Event_Count+1) = t(Event_Count)+dt(Event_Count);  %advance time according to time interval selected by Gillespie Algorithm
+    
     FracCover_RAD51(Event_Count+1) = numel(find(DNA(2,:) == RAD51))/N; %RAD51 saturation of the DNA lattice after each event
     FracCover_RPA_A(Event_Count+1) = numel(find(DNA(2,:) == RPA_A))/N;  %saturation of RPA-A
     FracCover_RPA_D(Event_Count+1) = numel(find(DNA(2,:) == RPA_D))/N;  %saturation of RPA-D on the lattice
