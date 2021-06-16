@@ -40,7 +40,6 @@ DNA = zeros(2,N);   %array to represent DNA
                     %top row is used to store locations of hinged open RPA-D
                     %bottom row actually represents the DNA itself
 RAD51_Mon_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Monomers are bound
-RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are bound on the lattice
 RPA_A_BoundAtSpot = zeros(1,N); %array to record where RPA-A is actively bound
 RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
@@ -177,6 +176,7 @@ while max(t) <= MaxTime
         end
     end
     %Population of Bound Proteins
+    RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are bound on the lattice
     x_Bound_RAD51_M(Event_Count) = numel(find(DNA(2,:) == RAD51))/n_RAD51;    %calculates how many RAD51 Monomers are actively bound to DNA
     x_Bound_RPA_A(Event_Count) = numel(find(DNA(2,:) == RPA_A))/n_A;    %calculates the number of bound RPA-A
     x_Bound_RPA_D(Event_Count) = numel(find(DNA(2,:) == RPA_D))/n_D;    %calculates the number of actively bound RPA-D

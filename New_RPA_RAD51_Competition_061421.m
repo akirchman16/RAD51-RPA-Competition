@@ -40,7 +40,6 @@ DNA = zeros(2,N);   %array to represent DNA
                     %top row is used to store locations of hinged open RPA-D
                     %bottom row actually represents the DNA itself
 RAD51_Mon_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Monomers are bound
-RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are bound on the lattice
 RPA_A_BoundAtSpot = zeros(1,N); %array to record where RPA-A is actively bound
 RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
@@ -179,6 +178,7 @@ while max(t) <= MaxTime
     x_Bound_RPA_A(Event_Count) = numel(find(DNA(2,:) == RPA_A))/n_A;    %calculates the number of bound RPA-A
     x_Bound_RPA_D(Event_Count) = numel(find(DNA(2,:) == RPA_D))/n_D;    %calculates the number of actively bound RPA-D
     %Search for RAD51 Dimers (Uses Filament Lengths)
+    RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are bound on the lattice
     RAD51_Filament_Edges = [find(diff([0 DNA(2,:) 0]) == 51 | diff([0 DNA(2,:) 0]) == 50 | diff([0 DNA(2,:) 0]) == 48);find(diff([0 DNA(2,:) 0]) == -51 | diff([0 DNA(2,:) 0]) == -50 | diff([0 DNA(2,:) 0]) == -48)-1];  %edges of RAD51 filaments (left = 1st row; right = 2nd row)
     RAD51_Filament_Lengths = RAD51_Filament_Edges(2,:)-RAD51_Filament_Edges(1,:)+1; %length of each RAD51 Filament on the lattice
     RAD51_D_Filament_Locations = RAD51_Filament_Edges(1,RAD51_Filament_Lengths > n_RAD51);  %location of all filaments which contain a dimer
