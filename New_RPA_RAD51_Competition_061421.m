@@ -27,11 +27,11 @@ RPA_D = 3;  %value to represent D piece of RPA on lattice
 n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
 L_RPA = 2;  %concentration of RPA in solution
-w_RPA = 5;  %cooperativity parameter of RPA (for macroscopic binding)
+w_RPA = 1;  %cooperativity parameter of RPA (for macroscopic binding)
 k_on_RPAa = 25; %kinetic rate constant for RPA-A binding to ssDNA
 k_on_RPAd = 15;  %kinetic rate constant for RPA-D binding to ssDNA
-k_off_RPAa = 0.5; %kinetic rate constant for RPA-A dissociating from ssDNA
-k_off_RPAd = 0.3; %kinetic rate constant for RPA-D dissociating from ssDNA
+k_off_RPAa = 0.2; %kinetic rate constant for RPA-A dissociating from ssDNA
+k_off_RPAd = 0.6; %kinetic rate constant for RPA-D dissociating from ssDNA
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -45,7 +45,7 @@ RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
 LocationHistory = zeros(14,1);  %Matrix used to store locations of all events. Same order as Full_Propensity
 
-MaxTime = 5;  %maximum time the simulation runs to
+MaxTime = 10;  %maximum time the simulation runs to
 
 % Initial Values
 t(1) = 0;   %initial time is zero
