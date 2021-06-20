@@ -61,9 +61,8 @@ x_Bound_RPA_D(1) = 0;   %initially 0 RPA molecules bound to lattice
 Event_Count = 0;    %counts how many events happen within the simulation
 Equilibrium_RAD51 = 0;  %test of whether RAD51 saturation is at equilibrium (1 = at equilibrium)
 Equilibrium_RPA = 0;    %test of whether RPA saturation is at equilibrium (1 = at equilibirium)
-while (Equilibrium_RPA == 1 && Equilibrium_RAD51 == 1) == 0   %runs the whole time that the system is not at equilibrium
+while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs the whole time that the system is not at equilibrium
     Event_Count = Event_Count+1;    %advances event counter
-    (Equilibrium_RPA == 0 && Equilibrium_RAD51 == 0)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     SearchVars1 = {'Gap_Left','Gap_Right','Gap_Size','Gap_Edges','RAD51_M_Available_Gap_Edges','RAD51_D_Available_Gap_Edges','RPA_Available_Gap_Edges','RAD51_Mon_DC','RAD51_Dim_DC','RPA_DC','RAD51_Mon_SC','RAD51_Dim_SC','RPA_SC'};    %variables used in Search Process
     SearchVars2 = {'Gap_Size_RAD51_M_I','RAD51_M_Available_I_Gap_Edges','Gap_Size_RAD51_D_I','RAD51_D_Available_I_Gap_Edges','Gap_Size_RPA_I','RPA_Available_I_Gap_Edges','RAD51_Filament_Edges','RAD51_Filament_Lengths','RAD51_D_Filament_Locations','RAD51_D_Filament_Lengths','Monomers_per_Dimer_Filament'};    %more search variables
@@ -362,14 +361,15 @@ while (Equilibrium_RPA == 1 && Equilibrium_RAD51 == 1) == 0   %runs the whole ti
     FracCover_RPA(Event_Count+1) = sum([FracCover_RPA_A(Event_Count+1),FracCover_RPA_D(Event_Count+1)]);  %saturation of all parts of RPA
     FracCover_Total(Event_Count+1) = sum([FracCover_RAD51(Event_Count+1),FracCover_RPA(Event_Count+1)]);  %total saturation of the lattice (both RPA and RAD51)
     
-    EquilibriumBoundary = 5;    %+/- number of proteins which are the boundary of equilibrium tests
-    if Event_Count >= 100 %only tests for equilibrium after 100 events have occured
+    EquilibriumBoundary_RPA = 10;    %+/- number of RPA proteins which are the boundary of equilibrium tests
+    EquilibriumBoundary_RAD51 = 10;  %+/- number of RAD51 proteins which are the boundary of equilibrium tests
+    if Event_Count >= 1000 %only tests for equilibrium after 1000 events have occured
         RPA_Equilibrium_Test = FracCover_RPA(((Event_Count+1)-round(0.25*(Event_Count+1))):end);   %last 1/4 of Events saturation data for RPA
         RAD51_Equilibrium_Test = FracCover_RAD51(((Event_Count+1)-round(0.25*(Event_Count+1))):end);   %last 1/4 of Events saturation data for RAD51
         RPA_Avg_Saturation = sum(RPA_Equilibrium_Test)/numel(RPA_Equilibrium_Test); %average saturation in last 1/4 of Events (RPA)
         RAD51_Avg_Saturation = sum(RAD51_Equilibrium_Test)/numel(RAD51_Equilibrium_Test);   %average saturation in last 1/4 of Events (RAD51)
-        RPA_Boundaries = [RPA_Avg_Saturation-((EquilibriumBoundary*n_RPA)/N); RPA_Avg_Saturation+((EquilibriumBoundary*n_RPA)/N)];  %boundary limits for equilibrium test
-        RAD51_Boundaries = [RAD51_Avg_Saturation-((EquilibriumBoundary*n_RAD51)/N); RAD51_Avg_Saturation+((EquilibriumBoundary*n_RAD51)/N)];  %boundary limits for equilibrium test
+        RPA_Boundaries = [RPA_Avg_Saturation-((EquilibriumBoundary_RPA*n_RPA)/N); RPA_Avg_Saturation+((EquilibriumBoundary_RPA*n_RPA)/N)];  %boundary limits for equilibrium test
+        RAD51_Boundaries = [RAD51_Avg_Saturation-((EquilibriumBoundary_RAD51*n_RAD51)/N); RAD51_Avg_Saturation+((EquilibriumBoundary_RAD51*n_RAD51)/N)];  %boundary limits for equilibrium test
         if any(RPA_Equilibrium_Test < RPA_Boundaries(1) | RPA_Equilibrium_Test > RPA_Boundaries(2)) == 0    %if no element of data within last 1/4 of events is outside the boundary...
             Equilibrium_RPA = 1;    %...then at equilibrium
         else
