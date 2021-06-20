@@ -361,21 +361,28 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
     FracCover_RPA(Event_Count+1) = sum([FracCover_RPA_A(Event_Count+1),FracCover_RPA_D(Event_Count+1)]);  %saturation of all parts of RPA
     FracCover_Total(Event_Count+1) = sum([FracCover_RAD51(Event_Count+1),FracCover_RPA(Event_Count+1)]);  %total saturation of the lattice (both RPA and RAD51)
     
+% Equilibrium Testing - Linear Slope Method %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     EquilibriumBoundary_RPA = 10;    %+/- number of RPA proteins which are the boundary of equilibrium tests
     EquilibriumBoundary_RAD51 = 10;  %+/- number of RAD51 proteins which are the boundary of equilibrium tests
     if Event_Count >= 1000 %only tests for equilibrium after 1000 events have occured
+        t_Equilibrium_Test = t(Event_Count+1-round(0.25*(Event_Count+1)):end);  %time values that we're testing for equilibrium
         RPA_Equilibrium_Test = FracCover_RPA(((Event_Count+1)-round(0.25*(Event_Count+1))):end);   %last 1/4 of Events saturation data for RPA
         RAD51_Equilibrium_Test = FracCover_RAD51(((Event_Count+1)-round(0.25*(Event_Count+1))):end);   %last 1/4 of Events saturation data for RAD51
+        
         RPA_Avg_Saturation = sum(RPA_Equilibrium_Test)/numel(RPA_Equilibrium_Test); %average saturation in last 1/4 of Events (RPA)
         RAD51_Avg_Saturation = sum(RAD51_Equilibrium_Test)/numel(RAD51_Equilibrium_Test);   %average saturation in last 1/4 of Events (RAD51)
-        RPA_Boundaries = [RPA_Avg_Saturation-((EquilibriumBoundary_RPA*n_RPA)/N); RPA_Avg_Saturation+((EquilibriumBoundary_RPA*n_RPA)/N)];  %boundary limits for equilibrium test
-        RAD51_Boundaries = [RAD51_Avg_Saturation-((EquilibriumBoundary_RAD51*n_RAD51)/N); RAD51_Avg_Saturation+((EquilibriumBoundary_RAD51*n_RAD51)/N)];  %boundary limits for equilibrium test
-        if any(RPA_Equilibrium_Test < RPA_Boundaries(1) | RPA_Equilibrium_Test > RPA_Boundaries(2)) == 0    %if no element of data within last 1/4 of events is outside the boundary...
+        
+        RAD51_Coefficients = coeffvalues(LinearEquilibrium_Test(t_Equilibrium_Test,RAD51_Equilibrium_Test));    %coefficients of linear fit to RAD51 data (slope; y-int)
+        RAD51_Slope = RAD51_Coefficients(1);    %slope of RAD51 data
+        RPA_Coefficients = coeffvalues(LinearEquilibrium_Test(t_Equilibrium_Test,RPA_Equilibrium_Test));    %linear fit coefficients of RPA data (slope; y-int)
+        RPA_Slope = RPA_Coefficients(1);    %slope of RPA data
+        
+        if abs(RPA_Slope) < 0.01    %if slope of RPA data is essentially zero... (slope limit is change in saturation of 1% (~17 proteins) per 1 time interval)
             Equilibrium_RPA = 1;    %...then at equilibrium
         else
             Equilibrium_RPA = 0;    %...otherwise reset to not at equilibrium
         end
-        if any(RAD51_Equilibrium_Test < RAD51_Boundaries(1) | RAD51_Equilibrium_Test > RAD51_Boundaries(2)) == 0    %if no element of data within last 1/4 of events is outside of the boundary limits...
+        if abs(RAD51_Slope) < 0.01 %if the slope of RAD51 data is essentially zero... (slope limit is change in saturation of 1% (~3 proteins) per 1 time interval)
             Equilibrium_RAD51 = 1;  %...then we're at equilibrium
         else
             Equilibrium_RAD51 = 0;    %...otherwise reset to not at equilibrium
@@ -402,3 +409,12 @@ ylim([0 1]);
 title('RAD51/RPA Competition Saturation');
 legend('RAD51','RPA-A','RPA-D','All RPA','Total','location','southoutside','orientation','horizontal');
 box on;
+
+% figure(2);
+% scatter(t(Event_Count+1-round(0.25*(Event_Count+1)):end),RAD51_Equilibrium_Test,1,'r','filled');
+% hold on;
+% scatter(t(Event_Count+1-round(0.25*(Event_Count+1)):end),RPA_Equilibrium_Test,1,'m','filled');
+% xlim([0 max(t)]);
+% ylim([0 1]);
+% legend('RAD51','RPA');
+% box on;
