@@ -4,7 +4,7 @@ close all;
 % This is the new model for the competition between RPA and RAD51
 % nucleoproteins on ssDNA. It utilizes the Direct Gillespie Algorithm and
 % tracks various saturations of the DNA lattice over time. RPA is split
-% into two segments, A(which has a very strong affinity for ssDNA) and D
+% into two segments, A (which has a very strong affinity for ssDNA) and D
 % (which has a lower affinity for ssDNA). Both proteins can bind and unbind
 % whenever as long as there are available locations for it. Equilibrium is
 % tested for using a linear fit to the last 1/4 of events. A linear fit
