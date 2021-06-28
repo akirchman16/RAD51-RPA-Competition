@@ -4,9 +4,13 @@ close all;
 % This is the new model for the competition between RPA and RAD51
 % nucleoproteins on ssDNA. It utilizes the Direct Gillespie Algorithm and
 % tracks various saturations of the DNA lattice over time. RPA is split
-% into two segments, A(which has a very strong affinity for ssDNA) and D
+% into two segments, A (which has a very strong affinity for ssDNA) and D
 % (which has a lower affinity for ssDNA). Both proteins can bind and unbind
-% whenever as long as there are available locations for it.
+% whenever as long as there are available locations for it. Equilibrium is
+% tested for using a linear fit to the last 1/4 of events. A linear fit
+% with slope less than 0.01 (1% per unit time interval) and a y-int with
+% less than 5% error with the average FracCover is considered the
+% equilibrium qualification.
 
 N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
@@ -361,7 +365,7 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
     FracCover_RPA(Event_Count+1) = sum([FracCover_RPA_A(Event_Count+1),FracCover_RPA_D(Event_Count+1)]);  %saturation of all parts of RPA
     FracCover_Total(Event_Count+1) = sum([FracCover_RAD51(Event_Count+1),FracCover_RPA(Event_Count+1)]);  %total saturation of the lattice (both RPA and RAD51)
     
-% Equilibrium Testing - Linear Slope Method %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Equilibrium Testing - Linear Slope & Intercept Method %%%%%%%%%%%%%%%%%%%
     EquilibriumBoundary_RPA = 10;    %+/- number of RPA proteins which are the boundary of equilibrium tests
     EquilibriumBoundary_RAD51 = 10;  %+/- number of RAD51 proteins which are the boundary of equilibrium tests
     if Event_Count >= 1000 %only tests for equilibrium after 1000 events have occured
@@ -374,15 +378,17 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         
         RAD51_Coefficients = coeffvalues(LinearEquilibrium_Test(t_Equilibrium_Test,RAD51_Equilibrium_Test));    %coefficients of linear fit to RAD51 data (slope; y-int)
         RAD51_Slope = RAD51_Coefficients(1);    %slope of RAD51 data
+        RAD51_Yint_Error = abs(RAD51_Avg_Saturation-RAD51_Coefficients(2))/RAD51_Avg_Saturation; %y-intercept error of linear fit for RAD51 data
         RPA_Coefficients = coeffvalues(LinearEquilibrium_Test(t_Equilibrium_Test,RPA_Equilibrium_Test));    %linear fit coefficients of RPA data (slope; y-int)
         RPA_Slope = RPA_Coefficients(1);    %slope of RPA data
+        RPA_Yint_Error = abs(RPA_Avg_Saturation-RPA_Coefficients(2))/RPA_Avg_Saturation;    %y-intercept error compared to average RPA saturation
         
-        if abs(RPA_Slope) < 0.01    %if slope of RPA data is essentially zero... (slope limit is change in saturation of 1% (~17 proteins) per 1 time interval)
+        if abs(RPA_Slope) < 0.01 & RPA_Yint_Error < 0.05   %if slope of RPA data is essentially zero and y-intercept is very close to avg. saturation value... (slope limit is change in saturation of 1% (~17 proteins) per 1 time interval)
             Equilibrium_RPA = 1;    %...then at equilibrium
         else
             Equilibrium_RPA = 0;    %...otherwise reset to not at equilibrium
         end
-        if abs(RAD51_Slope) < 0.01 %if the slope of RAD51 data is essentially zero... (slope limit is change in saturation of 1% (~3 proteins) per 1 time interval)
+        if abs(RAD51_Slope) < 0.01 & RAD51_Yint_Error < 0.05 %if the slope of RAD51 data is essentially zero and y-intercept is very close to avg. saturation value... (slope limit is change in saturation of 1% (~3 proteins) per 1 time interval)
             Equilibrium_RAD51 = 1;  %...then we're at equilibrium
         else
             Equilibrium_RAD51 = 0;    %...otherwise reset to not at equilibrium
@@ -409,12 +415,3 @@ ylim([0 1]);
 title('RAD51/RPA Competition Saturation');
 legend('RAD51','RPA-A','RPA-D','All RPA','Total','location','southoutside','orientation','horizontal');
 box on;
-
-% figure(2);
-% scatter(t(Event_Count+1-round(0.25*(Event_Count+1)):end),RAD51_Equilibrium_Test,1,'r','filled');
-% hold on;
-% scatter(t(Event_Count+1-round(0.25*(Event_Count+1)):end),RPA_Equilibrium_Test,1,'m','filled');
-% xlim([0 max(t)]);
-% ylim([0 1]);
-% legend('RAD51','RPA');
-% box on;
