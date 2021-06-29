@@ -32,10 +32,10 @@ n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
 L_RPA = 2;  %concentration of RPA in solution
 w_RPA = 1;  %cooperativity parameter of RPA (for macroscopic binding)
-k_on_RPAa = 25; %kinetic rate constant for RPA-A binding to ssDNA
-k_on_RPAd = 15;  %kinetic rate constant for RPA-D binding to ssDNA
-k_off_RPAa = 0.2; %kinetic rate constant for RPA-A dissociating from ssDNA
-k_off_RPAd = 0.6; %kinetic rate constant for RPA-D dissociating from ssDNA
+k_on_RPA_A = 25; %kinetic rate constant for RPA-A binding to ssDNA
+k_on_RPA_D = 15;  %kinetic rate constant for RPA-D binding to ssDNA
+k_off_RPA_A = 0.2; %kinetic rate constant for RPA-A dissociating from ssDNA
+k_off_RPA_D = 0.6; %kinetic rate constant for RPA-D dissociating from ssDNA
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -202,13 +202,13 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
     RAD51_Dim_BoundAtSpot(Left_RAD51_Dimer_Filament) = 1;   %records where all possible dimers are located
     x_Bound_RAD51_D(Event_Count) = numel(find(RAD51_Dim_BoundAtSpot == 1)); %number of RAD51 Dimers bound to lattice
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    Macro_Propensity = [k_on_RAD51*L_RAD51_M,k_on_RAD51*L_RAD51_M*w_RAD51,k_on_RAD51*L_RAD51_M*(w_RAD51^2),k_on_RAD51*L_RAD51_D,k_on_RAD51*L_RAD51_D*w_RAD51,k_on_RAD51*L_RAD51_D*(w_RAD51^2),k_on_RPAa*L_RPA,k_on_RPAa*L_RPA*w_RPA,k_on_RPAa*(w_RPA^2)].*Populations;  %propensity functions for macroscopic reactions
-    Unbinding_Propensity = [k_off_RAD51*x_Bound_RAD51_M(Event_Count),k_off_RAD51*x_Bound_RAD51_D(Event_Count),k_off_RPAa*x_Bound_RPA_A(Event_Count),k_off_RPAd*x_Bound_RPA_D(Event_Count)];   %propensity functions of unbinding reactions
+    Macro_Propensity = [k_on_RAD51*L_RAD51_M,k_on_RAD51*L_RAD51_M*w_RAD51,k_on_RAD51*L_RAD51_M*(w_RAD51^2),k_on_RAD51*L_RAD51_D,k_on_RAD51*L_RAD51_D*w_RAD51,k_on_RAD51*L_RAD51_D*(w_RAD51^2),k_on_RPA_A*L_RPA,k_on_RPA_A*L_RPA*w_RPA,k_on_RPA_A*(w_RPA^2)].*Populations;  %propensity functions for macroscopic reactions
+    Unbinding_Propensity = [k_off_RAD51*x_Bound_RAD51_M(Event_Count),k_off_RAD51*x_Bound_RAD51_D(Event_Count),k_off_RPA_A*x_Bound_RPA_A(Event_Count),k_off_RPA_D*x_Bound_RPA_D(Event_Count)];   %propensity functions of unbinding reactions
                 % 1 - RAD51 Monomer Unbinding
                 % 2 - RAD51 Dimer Unbinding
                 % 3 - RPA Macroscopically Dissociating
                 % 4 - RPA-D Microscopically Dissociating
-    Micro_Propensity = k_on_RPAd*numel(Free_for_RPA_D);   %propensity function for RPA-D rebinding (hinging closed)
+    Micro_Propensity = k_on_RPA_D*numel(Free_for_RPA_D);   %propensity function for RPA-D rebinding (hinging closed)
     Full_Propensity = [Macro_Propensity, Unbinding_Propensity, Micro_Propensity];  %full listing of propensity functions for the simulation
                 % 1 - RAD51 Monomer I Binding
                 % 2 - RAD51 Monomer SC Binding
