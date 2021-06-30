@@ -16,11 +16,11 @@ N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
-L_RAD51_Total = 5;  %total concentration of RAD51 in solution
+L_RAD51_Total = 1;  %total concentration of RAD51 in solution
 Percent_M_RAD51 = 0.5;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
-k_on_RAD51 = 5;     %kinetic rate constant for RAD51 binding to ssDNA
-k_off_RAD51 = 5;    %kinetic rate constant for RAD51 dissociating from ssDNA
+k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
+k_off_RAD51 = 1;    %kinetic rate constant for RAD51 dissociating from ssDNA
 
 L_RAD51_M = L_RAD51_Total*Percent_M_RAD51;  %calculates concentration of RAD51 monomers
 L_RAD51_D = L_RAD51_Total-L_RAD51_M;    %calculates concentration of RAD51 dimers
@@ -32,17 +32,10 @@ n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
 L_RPA = 5;  %concentration of RPA in solution
 w_RPA = 1;  %cooperativity parameter of RPA (for macroscopic binding)
-<<<<<<< HEAD
 k_on_RPA_A = 25; %kinetic rate constant for RPA-A binding to ssDNA
 k_on_RPA_D = 15;  %kinetic rate constant for RPA-D binding to ssDNA
-k_off_RPA_A = 0.2; %kinetic rate constant for RPA-A dissociating from ssDNA
-k_off_RPA_D = 0.6; %kinetic rate constant for RPA-D dissociating from ssDNA
-=======
-k_on_RPAa = 25; %kinetic rate constant for RPA-A binding to ssDNA
-k_on_RPAd = 12;  %kinetic rate constant for RPA-D binding to ssDNA
-k_off_RPAa = 5; %kinetic rate constant for RPA-A dissociating from ssDNA
-k_off_RPAd = ; %kinetic rate constant for RPA-D dissociating from ssDNA
->>>>>>> Equilibrium_Testing
+k_off_RPA_A = 1; %kinetic rate constant for RPA-A dissociating from ssDNA
+k_off_RPA_D = 1; %kinetic rate constant for RPA-D dissociating from ssDNA
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -420,3 +413,7 @@ ylim([0 1]);
 title('RAD51/RPA Competition Saturation');
 legend('RAD51','RPA-A','RPA-D','All RPA','Total','location','southoutside','orientation','horizontal');
 box on;
+
+disp(['RAD51 Saturation: ', num2str(round(RAD51_Avg_Saturation,2))]);
+disp(['RPA Saturation: ', num2str(round(RPA_Avg_Saturation,2))]);
+disp(['Equilibrium Time: ', num2str(round(t_Equilibrium,2))]);
