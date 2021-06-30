@@ -16,7 +16,8 @@ N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
-L_RAD51_Total = 1;  %total concentration of RAD51 in solution
+
+L_RAD51_Total = 2;  %total concentration of RAD51 in solution
 Percent_M_RAD51 = 0.5;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
 k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
@@ -414,4 +415,6 @@ title('RAD51/RPA Competition Saturation');
 legend('RAD51','RPA-A','RPA-D','All RPA','Total','location','southoutside','orientation','horizontal');
 box on;
 
-disp(['RAD51 Saturation: ', num2str(round(RAD51_Avg_Saturation)
+disp(['RAD51 Saturation: ', num2str(round(RAD51_Avg_Saturation,2))]);
+disp(['RPA Saturation: ', num2str(round(RPA_Avg_Saturation,2))]);
+disp(['Equilibrium Time: ', num2str(round(t_Equilibrium,2))]);

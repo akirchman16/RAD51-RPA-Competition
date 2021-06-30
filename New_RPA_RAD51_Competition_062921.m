@@ -16,7 +16,8 @@ N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
-L_RAD51_Total = 1;  %total concentration of RAD51 in solution
+
+L_RAD51_Total = 2;  %total concentration of RAD51 in solution
 Percent_M_RAD51 = 0.5;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
 k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
@@ -30,7 +31,8 @@ RPA_A = 1;  %value to represent A piece of RPA on lattice
 RPA_D = 3;  %value to represent D piece of RPA on lattice
 n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
-L_RPA = 5;  %concentration of RPA in solution
+
+L_RPA = 2;  %concentration of RPA in solution
 w_RPA = 1;  %cooperativity parameter of RPA (for macroscopic binding)
 k_on_RPA_A = 25; %kinetic rate constant for RPA-A binding to ssDNA
 k_on_RPA_D = 15;  %kinetic rate constant for RPA-D binding to ssDNA
