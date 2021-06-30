@@ -1,6 +1,6 @@
 clearvars
 close all;
-
+tic
 % This is the new model for the competition between RPA and RAD51
 % nucleoproteins on ssDNA. It utilizes the Direct Gillespie Algorithm and
 % tracks various saturations of the DNA lattice over time. RPA is split
@@ -16,11 +16,11 @@ N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
-L_RAD51_Total = 2;  %total concentration of RAD51 in solution
-Percent_M_RAD51 = 1;    %percentage of RAD51 solution which is monomers
+L_RAD51_Total = 5;  %total concentration of RAD51 in solution
+Percent_M_RAD51 = 0.5;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
-k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
-k_off_RAD51 = 1;    %kinetic rate constant for RAD51 dissociating from ssDNA
+k_on_RAD51 = 5;     %kinetic rate constant for RAD51 binding to ssDNA
+k_off_RAD51 = 5;    %kinetic rate constant for RAD51 dissociating from ssDNA
 
 L_RAD51_M = L_RAD51_Total*Percent_M_RAD51;  %calculates concentration of RAD51 monomers
 L_RAD51_D = L_RAD51_Total-L_RAD51_M;    %calculates concentration of RAD51 dimers
@@ -30,12 +30,19 @@ RPA_A = 1;  %value to represent A piece of RPA on lattice
 RPA_D = 3;  %value to represent D piece of RPA on lattice
 n_A = 10;   %length of A component of RPA
 n_D = 10;   %length of D component of RPA
-L_RPA = 2;  %concentration of RPA in solution
+L_RPA = 5;  %concentration of RPA in solution
 w_RPA = 1;  %cooperativity parameter of RPA (for macroscopic binding)
+<<<<<<< HEAD
 k_on_RPA_A = 25; %kinetic rate constant for RPA-A binding to ssDNA
 k_on_RPA_D = 15;  %kinetic rate constant for RPA-D binding to ssDNA
 k_off_RPA_A = 0.2; %kinetic rate constant for RPA-A dissociating from ssDNA
 k_off_RPA_D = 0.6; %kinetic rate constant for RPA-D dissociating from ssDNA
+=======
+k_on_RPAa = 25; %kinetic rate constant for RPA-A binding to ssDNA
+k_on_RPAd = 12;  %kinetic rate constant for RPA-D binding to ssDNA
+k_off_RPAa = 5; %kinetic rate constant for RPA-A dissociating from ssDNA
+k_off_RPAd = ; %kinetic rate constant for RPA-D dissociating from ssDNA
+>>>>>>> Equilibrium_Testing
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -376,19 +383,17 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         RPA_Avg_Saturation = sum(RPA_Equilibrium_Test)/numel(RPA_Equilibrium_Test); %average saturation in last 1/4 of Events (RPA)
         RAD51_Avg_Saturation = sum(RAD51_Equilibrium_Test)/numel(RAD51_Equilibrium_Test);   %average saturation in last 1/4 of Events (RAD51)
         
-        RAD51_Coefficients = coeffvalues(LinearEquilibrium_Test(t_Equilibrium_Test,RAD51_Equilibrium_Test));    %coefficients of linear fit to RAD51 data (slope; y-int)
-        RAD51_Slope = RAD51_Coefficients(1);    %slope of RAD51 data
-        RAD51_Yint_Error = abs(RAD51_Avg_Saturation-RAD51_Coefficients(2))/RAD51_Avg_Saturation; %y-intercept error of linear fit for RAD51 data
-        RPA_Coefficients = coeffvalues(LinearEquilibrium_Test(t_Equilibrium_Test,RPA_Equilibrium_Test));    %linear fit coefficients of RPA data (slope; y-int)
-        RPA_Slope = RPA_Coefficients(1);    %slope of RPA data
-        RPA_Yint_Error = abs(RPA_Avg_Saturation-RPA_Coefficients(2))/RPA_Avg_Saturation;    %y-intercept error compared to average RPA saturation
+        RAD51_Fit = polyfit(t_Equilibrium_Test,RAD51_Equilibrium_Test,1);   %linear fit for RAD51 data (slope, y-int)
+        RAD51_Yint_Error = abs(RAD51_Avg_Saturation-RAD51_Fit(2))/RAD51_Avg_Saturation; %y-intercept error of linear fit for RAD51 data
+        RPA_Fit = polyfit(t_Equilibrium_Test,RPA_Equilibrium_Test,1);   %linear fit to RPA data (slope, y-int)
+        RPA_Yint_Error = abs(RPA_Avg_Saturation-RPA_Fit(2))/RPA_Avg_Saturation;    %y-intercept error compared to average RPA saturation
         
-        if abs(RPA_Slope) < 0.01 & RPA_Yint_Error < 0.05   %if slope of RPA data is essentially zero and y-intercept is very close to avg. saturation value... (slope limit is change in saturation of 1% (~17 proteins) per 1 time interval)
+        if abs(RPA_Fit(1)) < 0.01 & RPA_Yint_Error < 0.05   %if slope of RPA data is essentially zero and y-intercept is very close to avg. saturation value... (slope limit is change in saturation of 1% (~17 proteins) per 1 time interval)
             Equilibrium_RPA = 1;    %...then at equilibrium
         else
             Equilibrium_RPA = 0;    %...otherwise reset to not at equilibrium
         end
-        if abs(RAD51_Slope) < 0.01 & RAD51_Yint_Error < 0.05 %if the slope of RAD51 data is essentially zero and y-intercept is very close to avg. saturation value... (slope limit is change in saturation of 1% (~3 proteins) per 1 time interval)
+        if abs(RAD51_Fit(1)) < 0.01 & RAD51_Yint_Error < 0.05 %if the slope of RAD51 data is essentially zero and y-intercept is very close to avg. saturation value... (slope limit is change in saturation of 1% (~3 proteins) per 1 time interval)
             Equilibrium_RAD51 = 1;  %...then we're at equilibrium
         else
             Equilibrium_RAD51 = 0;    %...otherwise reset to not at equilibrium
@@ -397,7 +402,7 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
 end
 
 t_Equilibrium = t(Event_Count+1-round(0.25*(Event_Count+1)));   %time where equilibrium occured
-
+toc
 figure(1);  %plots of saturation over time
 scatter(t,FracCover_RAD51,1,'red','filled');    %RAD51 Saturation
 hold on;
