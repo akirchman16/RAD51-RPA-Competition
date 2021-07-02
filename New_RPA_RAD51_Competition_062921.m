@@ -20,7 +20,7 @@ n_RAD51 = 3;    %length of RAD51 protein
 L_RAD51_Total = 2;  %total concentration of RAD51 in solution
 Percent_M_RAD51 = 0.5;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
-k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
+k_on_RAD51 = 10;     %kinetic rate constant for RAD51 binding to ssDNA
 k_off_RAD51 = 1;    %kinetic rate constant for RAD51 dissociating from ssDNA
 
 L_RAD51_M = L_RAD51_Total*Percent_M_RAD51;  %calculates concentration of RAD51 monomers
