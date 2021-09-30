@@ -332,10 +332,8 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         j(Event_Count) = 13; %records which reaction occured
         RPA_A_Micro_Bind_Spot = Free_for_RPA_A(randi(numel(Free_for_RPA_D)));   %random location where RPA-D can rebind to the lattice
         DNA(2,RPA_A_Micro_Bind_Spot:RPA_A_Micro_Bind_Spot+(n_A-1)) = RPA_A; %binds RPA-A to the DNA lattice
-        DNA(1,RPA_A_Micro_Bind_Spot:RPA_A_Micro_Bind_Spot+(n_A-1)) = 0; %removes RPA-A from the hinged open position
-        RPA_A_BoundAtSpot(RPA_A_Micro_Bind_Spot) = 1;   %records that RPA-A is now bound to the lattice
-        RPA_A_HingedOpen(RPA_A_Micro_Bind_Spot) = 0;    %records that RPA-A is no longer hinged open
-        LocationHistory(13,Event_Count) = RPA_A_Micro_Bind_Spot;    %records where the RPA-A micro binding occured
+        DNA(
+
     end
     
     %Bug Checking - Finding Whole Proteins
