@@ -11,7 +11,8 @@ tic
 % tested for using a linear fit to the last 1/4 of events. A linear fit
 % with slope less than 0.01 (1% per unit time interval) and a y-int with
 % less than 5% error with the average FracCover is considered the
-% equilibrium qualification.
+% equilibrium qualification. No cooperativity is included between RPA
+% molecules.
 
 N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
@@ -22,7 +23,7 @@ L_RAD51_Total = 2;  %total concentration of RAD51 in solution
 Percent_M_RAD51 = 0.5;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
 k_on_RAD51 = 10;     %kinetic rate constant for RAD51 binding to ssDNA
-k_off_RAD51 = 1;    %kinetic rate constant for RAD51 dissociating from ssDNA
+k_off_RAD51 = 2;    %kinetic rate constant for RAD51 dissociating from ssDNA
 
 L_RAD51_M = L_RAD51_Total*Percent_M_RAD51;  %calculates concentration of RAD51 monomers
 L_RAD51_D = L_RAD51_Total-L_RAD51_M;    %calculates concentration of RAD51 dimers
@@ -35,10 +36,10 @@ n_D = 10;   %length of D component of RPA
 
 L_RPA = 2;  %concentration of RPA in solution
 w_RPA = 1;  %cooperativity parameter of RPA (for macroscopic binding)
-k_on_RPA_A = 25; %kinetic rate constant for RPA-A binding to ssDNA
-k_on_RPA_D = 15;  %kinetic rate constant for RPA-D binding to ssDNA
+k_on_RPA_A = 50; %kinetic rate constant for RPA-A binding to ssDNA
+k_on_RPA_D = 25;  %kinetic rate constant for RPA-D binding to ssDNA
 k_off_RPA_A = 1; %kinetic rate constant for RPA-A dissociating from ssDNA
-k_off_RPA_D = 1; %kinetic rate constant for RPA-D dissociating from ssDNA
+k_off_RPA_D = 5; %kinetic rate constant for RPA-D dissociating from ssDNA
 
 n_RPA = sum([n_A,n_D]);   %calculates total length of RPA molecule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,7 +52,7 @@ RPA_A_BoundAtSpot = zeros(1,N); %array to record where RPA-A is actively bound
 RPA_D_BoundAtSpot = zeros(1,N); %array to record where RPA-D is actively bound
 RPA_D_HingedOpen = zeros(1,N);  %array to record where RPA-D is microscopically dissociated from lattice
 RPA_A_HingedOpen = zeros(1,N);  %array to record where RPA-A is microscopically unbound
-LocationHistory = zeros(14,1);  %Matrix used to store locations of all events. Same order as Full_Propensity
+LocationHistory = zeros(13,1);  %Matrix used to store locations of all events. Same order as Full_Propensity
 
 % Initial Values
 t(1) = 0;   %initial time is zero
@@ -225,7 +226,7 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
                 % 4 - RAD51 Dimer I Binding
                 % 5 - RAD51 Dimer SC Binding
                 % 6 - RAD51 Dimer DC Binding
-                % 7 - RPA-A Binding
+                % 7 - RPA Macro Binding
                 % 8 - RAD51 Monomer Unbinding
                 % 9 - RAD51 Dimer Unbinding
                 % 10 - RPA-A Micro Dissociating
@@ -237,6 +238,7 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
     Randoms = [rand,rand];  %random numbers for Monte Carlo step
     dt(Event_Count) = (1/a_0)*log(1/Randoms(1)); %time until next reaction occurs
     
+    RPA = sort([RPA_I,RPA_SC,RPA_DC]);  %sorted list of all available RPA binding locations
     %Direct Method of Calculating which reaction is next to occur
     if Full_Propensity(1) > Randoms(2)*a_0     %RAD51 Monomer I Binding Occurs
         j(Event_Count) = 1;  %records which reaction occured
@@ -276,19 +278,19 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         LocationHistory(6,Event_Count) = RAD51_Dim_DC_Bind_Spot;    %records where binding happened and which type of reaction
     elseif sum(Full_Propensity(1:7)) > Randoms(2)*a_0  %RPA Macro I Binding Occurs
         j(Event_Count) = 7; %records which reaction occured
-        RPA_Macro_I_Bind_Spot = RPA_I(randi(numel(RPA_I))); %chooses random location for RPA macro binding
-        DNA(2,RPA_Macro_I_Bind_Spot:RPA_Macro_I_Bind_Spot+(n_A-1)) = RPA_A; %binds A part of RPA
-        DNA(2,RPA_Macro_I_Bind_Spot+n_A:RPA_Macro_I_Bind_Spot+n_A+(n_D-1)) = RPA_D; %binds D component of RPA to lattice
-        RPA_A_BoundAtSpot(RPA_Macro_I_Bind_Spot) = 1;   %records where A component is bound
-        RPA_D_BoundAtSpot(RPA_Macro_I_Bind_Spot+n_A) = 1;  %records wehre D compoenet of RPA is bound
-        LocationHistory(7,Event_Count) = RPA_Macro_I_Bind_Spot; %records where this reaction occured in this event
+        RPA_Macro_Bind_Spot = RPA(randi(numel(RPA))); %chooses random location for RPA macro binding
+        DNA(2,RPA_Macro_Bind_Spot:RPA_Macro_Bind_Spot+(n_A-1)) = RPA_A; %binds A part of RPA
+        DNA(2,RPA_Macro_Bind_Spot+n_A:RPA_Macro_Bind_Spot+n_A+(n_D-1)) = RPA_D; %binds D component of RPA to lattice
+        RPA_A_BoundAtSpot(RPA_Macro_Bind_Spot) = 1;   %records where A component is bound
+        RPA_D_BoundAtSpot(RPA_Macro_Bind_Spot+n_A) = 1;  %records wehre D compoenet of RPA is bound
+        LocationHistory(7,Event_Count) = RPA_Macro_Bind_Spot; %records where this reaction occured in this event
     elseif sum(Full_Propensity(1:8)) > Randoms(2)*a_0  %RAD51 Monomer Unbinding
         j(Event_Count) = 8; %records which reaction occured
         RAD51_Bound_Monomers = find(RAD51_Mon_BoundAtSpot == 1);    %list of all locations a RAD51 monomer is bound
         RAD51_M_Unbind_Spot = RAD51_Bound_Monomers(randi(numel(RAD51_Bound_Monomers))); %selects random monomer that will unbind
         DNA(2,RAD51_M_Unbind_Spot:RAD51_M_Unbind_Spot+(n_RAD51-1)) = 0; %unbinds the monomer
         RAD51_Mon_BoundAtSpot(RAD51_M_Unbind_Spot) = 0; %removes location from BountAtSpot
-        LocationHistory(10,Event_Count) = RAD51_M_Unbind_Spot;  %records where this event occured
+        LocationHistory(8,Event_Count) = RAD51_M_Unbind_Spot;  %records where this event occured
     elseif sum(Full_Propensity(1:9)) > Randoms(2)*a_0  %RAD51 Dimer Unbinding Occurs
         j(Event_Count) = 9; %RAD51 Dimer Unbinding
         RAD51_Bound_Dimers = Left_RAD51_Dimer_Filament; %list of all locations where a dimer is bound
@@ -296,7 +298,7 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         DNA(2,RAD51_D_Unbind_Spot:RAD51_D_Unbind_Spot+(2*n_RAD51-1)) = 0;   %unbinds the dimer
         RAD51_Dim_BoundAtSpot(RAD51_D_Unbind_Spot) = 0; %removes location from BoundAtSpot (not necessary)
         RAD51_Mon_BoundAtSpot([RAD51_D_Unbind_Spot,RAD51_D_Unbind_Spot+n_RAD51]) = 0; %removes location from RAD51 Mon. BoundAtSpot record array
-        LocationHistory(11,Event_Count) = RAD51_D_Unbind_Spot;  %records where this event occured
+        LocationHistory(9,Event_Count) = RAD51_D_Unbind_Spot;  %records where this event occured
     elseif sum(Full_Propensity(1:10)) > Randoms(2)*a_0 %RPA-A Micro Dissociation
         j(Event_Count) = 10; %records which reaction occured
         RPA_A_CurrentBound = find(RPA_A_BoundAtSpot == 1);  %all locations where RPA-A is currently bound
@@ -311,12 +313,12 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
     elseif sum(Full_Propensity(1:11)) > Randoms(2)*a_0 %RPA-D Hinging Open Occurs
         j(Event_Count) = 11; %records which reaction occured
         RPA_D_CurrentBound = find(RPA_D_BoundAtSpot == 1);  %all locations where RPA-A is currently bound
-        RPA_D_Unbind_Spot = RPA_A_CurrentBound(randi(numel(RPA_D_CurrentBound)));    %location of RPA_A unbinding
-        DNA(2,RPA_A_Unbind_Spot:RPA_D_Unbind_Spot+(n_A-1)) = 0;  %hinges RPA-A open
-        DNA(1,RPA_A_Unbind_Spot:RPA_D_Unbind_Spot+(n_A-1)) = RPA_A;
-        RPA_A_BoundAtSpot(RPA_D_Unbind_Spot) = 0;   %removes location from BoundAtSpot
+        RPA_D_Unbind_Spot = RPA_D_CurrentBound(randi(numel(RPA_D_CurrentBound)));    %location of RPA_A unbinding
+        DNA(2,RPA_D_Unbind_Spot:RPA_D_Unbind_Spot+(n_D-1)) = 0;  %hinges RPA-A open
+        DNA(1,RPA_D_Unbind_Spot:RPA_D_Unbind_Spot+(n_D-1)) = RPA_D;
+        RPA_D_BoundAtSpot(RPA_D_Unbind_Spot) = 0;   %removes location from BoundAtSpot
         LocationHistory(11,Event_Count) = RPA_D_Unbind_Spot;    %records where event occured
-        if DNA(1,RPA_D_Unbind_Spot-1) == RPA_a   %if both RPA-A and RPA-D are hinged open...
+        if DNA(1,RPA_D_Unbind_Spot-1) == RPA_A   %if both RPA-A and RPA-D are hinged open...
             DNA(1,RPA_D_Unbind_Spot:RPA_D_Unbind_Spot+n_D-1) = 0; %...remove it from the DNA lattice
             DNA(1,RPA_D_Unbind_Spot-n_A:RPA_D_Unbind_Spot) = 0;
         end
@@ -366,8 +368,6 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
     FracCover_Total(Event_Count+1) = sum([FracCover_RAD51(Event_Count+1),FracCover_RPA(Event_Count+1)]);  %total saturation of the lattice (both RPA and RAD51)
     
 % Equilibrium Testing - Linear Slope & Intercept Method %%%%%%%%%%%%%%%%%%%
-    EquilibriumBoundary_RPA = 10;    %+/- number of RPA proteins which are the boundary of equilibrium tests
-    EquilibriumBoundary_RAD51 = 10;  %+/- number of RAD51 proteins which are the boundary of equilibrium tests
     if Event_Count >= 1000 %only tests for equilibrium after 1000 events have occured
         t_Equilibrium_Test = t(Event_Count+1-round(0.25*(Event_Count+1)):end);  %time values that we're testing for equilibrium
         RPA_Equilibrium_Test = FracCover_RPA(((Event_Count+1)-round(0.25*(Event_Count+1))):end);   %last 1/4 of Events saturation data for RPA
