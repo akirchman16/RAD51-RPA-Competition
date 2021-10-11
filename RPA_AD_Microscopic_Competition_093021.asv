@@ -14,7 +14,7 @@ tic
 % equilibrium qualification. No cooperativity is included between RPA
 % molecules.
 
-N = 500;   %length of ssDNA lattice
+N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
@@ -22,8 +22,8 @@ n_RAD51 = 3;    %length of RAD51 protein
 L_RAD51_Total = 2;  %total concentration of RAD51 in solution
 Percent_M_RAD51 = 0.5;    %percentage of RAD51 solution which is monomers
 w_RAD51 = 1;    %cooperativity parameter for RAD51
-k_on_RAD51 = 1;     %kinetic rate constant for RAD51 binding to ssDNA
-k_off_RAD51 = 1;    %kinetic rate constant for RAD51 dissociating from ssDNA
+k_on_RAD51 = 10;     %kinetic rate constant for RAD51 binding to ssDNA
+k_off_RAD51 = 2;    %kinetic rate constant for RAD51 dissociating from ssDNA
 
 L_RAD51_M = L_RAD51_Total*Percent_M_RAD51;  %calculates concentration of RAD51 monomers
 L_RAD51_D = L_RAD51_Total-L_RAD51_M;    %calculates concentration of RAD51 dimers
@@ -320,7 +320,7 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         LocationHistory(11,Event_Count) = RPA_D_Unbind_Spot;    %records where event occured
         if DNA(1,RPA_D_Unbind_Spot-1) == RPA_A   %if both RPA-A and RPA-D are hinged open...
             DNA(1,RPA_D_Unbind_Spot:RPA_D_Unbind_Spot+n_D-1) = 0; %...remove it from the DNA lattice
-            DNA(1,RPA_D_Unbind_Spot-n_A:RPA_D_Unbind_Spot-1) = 0;
+            DNA(1,RPA_D_Unbind_Spot-n_A:RPA_D_Unbind_Spot) = 0;
         end
     elseif sum(Full_Propensity(1:12)) > Randoms(2)*a_0 %RPA-D Micro Binding
         j(Event_Count) = 12; %records which reaction occured
