@@ -14,7 +14,7 @@ tic
 % equilibrium qualification. No cooperativity is included between RPA
 % molecules.
 
-N = 500;   %length of ssDNA lattice
+N = 5000;   %length of ssDNA lattice
 % RAD51 Parameters
 RAD51 = 51; %value that will be stored on lattice to represent bound RAD51
 n_RAD51 = 3;    %length of RAD51 protein
@@ -186,10 +186,23 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
             Free_for_RPA_A = [Free_for_RPA_A,f];
         end
     end
-    %Population of Bound Proteins
+    %Population of Bound RAD51 Proteins
     x_Bound_RAD51_M(Event_Count) = numel(find(DNA(2,:) == RAD51))/n_RAD51;    %calculates how many RAD51 Monomers are actively bound to DNA
-    x_Bound_RPA_A(Event_Count) = numel(find(DNA(2,:) == RPA_A))/n_A;    %calculates the number of bound RPA-A
-    x_Bound_RPA_D(Event_Count) = numel(find(DNA(2,:) == RPA_D))/n_D;    %calculates the number of actively bound RPA-D
+    %Population of Hingeable RPA Protein Components
+    A_Hingeable = [];   %records where RPA-A is bound and can hinge open
+    for g = find(RPA_A_BoundAtSpot == 1)
+        if DNA(1,g:g+n_A-1) == 0    %checks each bound RPA-A protein for a protein hinged open above it
+            A_Hingeable = [A_Hingeable,g];
+        end
+    end
+    D_Hingeable = [];   %records where RPA-D is bound and can hinge open
+    for h = find(RPA_D_BoundAtSpot == 1)
+        if DNA(1,h:h+n_D-1) == 0    %checks each bound RPA-D protein for a protein hinged open above it
+            D_Hingeable = [D_Hingeable,h];
+        end
+    end
+    x_Bound_RPA_A(Event_Count) = numel(A_Hingeable);    %calculates the number of bound RPA-A
+    x_Bound_RPA_D(Event_Count) = numel(D_Hingeable);    %calculates the number of actively bound RPA-D
     %Search for RAD51 Dimers (Uses Filament Lengths)
     RAD51_Dim_BoundAtSpot = zeros(1,N); %array used to record where RAD51 Dimers are bound on the lattice
     RAD51_Filament_Edges = [find(diff([0 DNA(2,:) 0]) == 51 | diff([0 DNA(2,:) 0]) == 50 | diff([0 DNA(2,:) 0]) == 48);find(diff([0 DNA(2,:) 0]) == -51 | diff([0 DNA(2,:) 0]) == -50 | diff([0 DNA(2,:) 0]) == -48)-1];  %edges of RAD51 filaments (left = 1st row; right = 2nd row)
@@ -301,8 +314,8 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         LocationHistory(9,Event_Count) = RAD51_D_Unbind_Spot;  %records where this event occured
     elseif sum(Full_Propensity(1:10)) > Randoms(2)*a_0 %RPA-A Micro Dissociation
         j(Event_Count) = 10; %records which reaction occured
-        RPA_A_CurrentBound = find(RPA_A_BoundAtSpot == 1);  %all locations where RPA-A is currently bound
-        RPA_A_Unbind_Spot = RPA_A_CurrentBound(randi(numel(RPA_A_CurrentBound)));    %location of RPA_A unbinding
+%         RPA_A_CurrentBound = find(RPA_A_BoundAtSpot == 1);  %all locations where RPA-A is currently bound
+        RPA_A_Unbind_Spot = A_Hingeable(randi(numel(A_Hingeable)));    %location of RPA_A unbinding
         DNA(2,RPA_A_Unbind_Spot:RPA_A_Unbind_Spot+(n_A-1)) = 0;  %hinges RPA-A open
         DNA(1,RPA_A_Unbind_Spot:RPA_A_Unbind_Spot+(n_A-1)) = RPA_A;
         RPA_A_BoundAtSpot(RPA_A_Unbind_Spot) = 0;   %removes location from BoundAtSpot
@@ -312,8 +325,8 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
         end
     elseif sum(Full_Propensity(1:11)) > Randoms(2)*a_0 %RPA-D Hinging Open Occurs
         j(Event_Count) = 11; %records which reaction occured
-        RPA_D_CurrentBound = find(RPA_D_BoundAtSpot == 1);  %all locations where RPA-A is currently bound
-        RPA_D_Unbind_Spot = RPA_D_CurrentBound(randi(numel(RPA_D_CurrentBound)));    %location of RPA_A unbinding
+%         RPA_D_CurrentBound = find(RPA_D_BoundAtSpot == 1);  %all locations where RPA-A is currently bound
+        RPA_D_Unbind_Spot = D_Hingeable(randi(numel(D_Hingeable)));    %location of RPA_A unbinding
         DNA(2,RPA_D_Unbind_Spot:RPA_D_Unbind_Spot+(n_D-1)) = 0;  %hinges RPA-A open
         DNA(1,RPA_D_Unbind_Spot:RPA_D_Unbind_Spot+(n_D-1)) = RPA_D;
         RPA_D_BoundAtSpot(RPA_D_Unbind_Spot) = 0;   %removes location from BoundAtSpot
