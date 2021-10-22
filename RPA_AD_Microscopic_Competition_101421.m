@@ -1,12 +1,13 @@
 close all;
 
-DataSetSize = 7;    %number of runs to complete
+DataSetSize = 5;    %number of runs to complete
 Data = zeros(3,DataSetSize);    %memory allocation for equilibrium data
     %1 - RAD51 Equilibrium Saturation
     %2 - RPA Equilibrium Saturation
     %3 - Equilibrium Time
+WB = waitbar(0,['Running ', num2str(DataSetSize), ' Simulations']);
 for RunNum = 1:DataSetSize
-    clearvars -except Data RunNum DataSetSize
+    clearvars -except Data RunNum DataSetSize WB
     RunNumber = RunNum;
     tic
     % This is the new model for the competition between RPA and RAD51
@@ -417,7 +418,7 @@ for RunNum = 1:DataSetSize
 
     t_Equilibrium = t(Event_Count+1-round(0.25*(Event_Count+1)));   %time where equilibrium occured
     toc
-    figure(RunNumber);  %plots of saturation over time
+    figure(1);  %plots of saturation over time
     scatter(t,FracCover_RAD51,1,'red','filled');    %RAD51 Saturation
     hold on;
     scatter(t,FracCover_RPA_A,1,'cyan','filled');   %RPA-A Saturation
@@ -441,4 +442,6 @@ for RunNum = 1:DataSetSize
     disp(['Equilibrium Time: ', num2str(round(t_Equilibrium,2))]);
     
     Data(:,RunNumber) = [round(RAD51_Avg_Saturation,2);round(RPA_Avg_Saturation,2);round(t_Equilibrium,2)];   %records equilibrium data
+    waitbar(RunNumber/DataSetSize,WB,['Running ', num2str(DataSetSize), ' Simulations']);
 end
+close WB

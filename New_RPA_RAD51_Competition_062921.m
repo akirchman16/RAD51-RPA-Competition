@@ -1,5 +1,5 @@
 close all
-DataSetSize = 10;    %number of runs to complete
+DataSetSize = 5;    %number of runs to complete
 Data = zeros(3,DataSetSize);    %memory allocation for equilibrium data
     %1 - RAD51 Equilibrium Saturation
     %2 - RPA Equilibrium Saturation
@@ -408,7 +408,7 @@ for RunNum = 1:DataSetSize
     Data(:,RunNumber) = [round(RAD51_Avg_Saturation,2);round(RPA_Avg_Saturation,2);round(t_Equilibrium,2)];   %records equilibrium data
     
     toc
-    figure(RunNumber);  %plots of saturation over time
+    figure(1);  %plots of saturation over time
     scatter(t,FracCover_RAD51,1,'red','filled');    %RAD51 Saturation
     hold on;
     scatter(t,FracCover_RPA_A,1,'cyan','filled');   %RPA-A Saturation
