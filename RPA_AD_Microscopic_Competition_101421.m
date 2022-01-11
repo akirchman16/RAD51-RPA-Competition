@@ -354,7 +354,7 @@ for RunNum = 1:DataSetSize
             LocationHistory(12,Event_Count) = RPA_D_Micro_Bind_Spot;    %records where this event occured
         elseif sum(Full_Propensity(1:13)) > Randoms(2)*a_0 %RPA-A Micro Binding
             j(Event_Count) = 13; %records which reaction occured
-            RPA_A_Micro_Bind_Spot = Free_for_RPA_A(randi(numel(Free_for_RPA_D)));   %random location where RPA-D can rebind to the lattice
+            RPA_A_Micro_Bind_Spot = Free_for_RPA_A(randi(numel(Free_for_RPA_A)));   %random location where RPA-D can rebind to the lattice
             DNA(2,RPA_A_Micro_Bind_Spot:RPA_A_Micro_Bind_Spot+(n_A-1)) = RPA_A; %binds RPA-A to the DNA lattice
             DNA(1,RPA_A_Micro_Bind_Spot:RPA_A_Micro_Bind_Spot+(n_A-1)) = 0; %removes RPA-A from the hinged open position
             RPA_A_BoundAtSpot(RPA_A_Micro_Bind_Spot) = 1;   %records that RPA-A is now bound to the lattice
