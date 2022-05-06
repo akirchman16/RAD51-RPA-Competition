@@ -1,6 +1,6 @@
 close all;
 
-DataSetSize = 5;    %number of runs to complete
+DataSetSize = 1;    %number of runs to complete
 Data = zeros(3,DataSetSize);    %memory allocation for equilibrium data
     %1 - RAD51 Equilibrium Saturation
     %2 - RPA Equilibrium Saturation
