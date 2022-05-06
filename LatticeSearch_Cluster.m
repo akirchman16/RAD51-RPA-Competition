@@ -65,7 +65,7 @@ function [Counts,RPA_I,RPA_SC,RPA_DC,RAD51_Mon_I,RAD51_Mon_SC,RAD51_Mon_DC,RAD51
     % 2-RAD51
     RAD51_Cluster = logical(DNA(2,:) == 51);
     bb_RAD51 = regionprops(RAD51_Cluster,'BoundingBox'); bb_RAD51 = cat(1,bb_RAD51.BoundingBox);
-    if ~isempty(bb_RPA)
+    if ~isempty(bb_RAD51)
         RAD51_Edges = [bb_RAD51(:,1)+0.5 bb_RAD51(:,1)+bb_RAD51(:,3)-0.5];
     else
         RAD51_Edges = [];

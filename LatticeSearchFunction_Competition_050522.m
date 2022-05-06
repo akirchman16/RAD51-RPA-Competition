@@ -74,8 +74,9 @@ while any([Equilibrium_RAD51,Equilibrium_RPA] == 0) == 1 & t(end) <= 25  %runs t
     Event_Count = Event_Count+1;    %advances event counter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Function: Search for Free Locations
-    [FreeCounts,RPA_I,RPA_SC,RPA_DC,RAD51_Mon_I,RAD51_Mon_SC,RAD51_Mon_DC,RAD51_Dim_I,RAD51_Dim_SC,RAD51_Dim_DC] = LatticeSearch_Cluster(DNA,n_RAD51,n_A,n_D)
+    [FreeCounts,RPA_I,RPA_SC,RPA_DC,RAD51_Mon_I,RAD51_Mon_SC,RAD51_Mon_DC,RAD51_Dim_I,RAD51_Dim_SC,RAD51_Dim_DC] = LatticeSearch_Cluster(DNA,n_RAD51,n_A,n_D);
     %Bound Proteins/Hinged RPA-A and RPA-D
+    [x] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D);
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Macro_Propensity = [k_on_RAD51*L_RAD51_M,k_on_RAD51*L_RAD51_M*w_RAD51,k_on_RAD51*L_RAD51_M*(w_RAD51^2),k_on_RAD51*L_RAD51_D,k_on_RAD51*L_RAD51_D*w_RAD51,k_on_RAD51*L_RAD51_D*(w_RAD51^2),k_on_RPA_A*L_RPA].*Populations;  %propensity functions for reactions
