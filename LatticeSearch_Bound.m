@@ -30,8 +30,8 @@ function [x] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D)
         % cluster
         RPA_A_Bound_NumProteins = (RPA_A_Bound_Cluster(:,2)/n_A).';
         % Record positions of each bound RPA-A protein
-        for i = RPA_A_Bound_NumProteins
-            RPA_A_Bound_Pos = sort([RPA_A_Bound_Pos,RPA_A_Bound_Cluster(:,1)+(n_A*(0:1:RPA_A_Bound_NumProteins(i)-1))]);
+        for i = 1:numel(RPA_A_Bound_NumProteins)
+            RPA_A_Bound_Pos = sort([RPA_A_Bound_Pos,RPA_A_Bound_Cluster(i,1)+(n_A*(0:1:RPA_A_Bound_NumProteins(i)-1))]);
         end
     end
     % 2: RPA-A (Open)
@@ -45,8 +45,8 @@ function [x] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D)
         % together in each cluster
         RPA_A_Open_NumProteins = (RPA_A_Open_Cluster(:,2)/n_A).';
         % Record the positions of each hinged open RPA-A protein
-        for i = RPA_A_Open_NumProteins
-            RPA_A_Open_Pos = sort([RPA_A_Open_Pos,RPA_A_Open_Cluster(:,1)+(n_A*(0:1:RPA_A_Open_NumProteins(i)-1))]);
+        for i = 1:numel(RPA_A_Open_NumProteins)
+            RPA_A_Open_Pos = sort([RPA_A_Open_Pos,RPA_A_Open_Cluster(i,1)+(n_A*(0:1:RPA_A_Open_NumProteins(i)-1))]);
         end
     end
     % 3: RPA-D (Bound)
@@ -59,8 +59,8 @@ function [x] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D)
         % each cluster along the ssDNA lattice
         RPA_D_Bound_NumProteins = (RPA_D_Bound_Cluster(:,2)/n_D).';
         % Record positions of each bound RPA-D protein
-        for i = RPA_D_Bound_NumProteins
-            RPA_D_Bound_Pos = sort([RPA_D_Bound_Pos,RPA_D_Bound_Cluster(:,1)+(n_D*(0:1:RPA_D_Bound_NumProteins(i)-1))]);
+        for i = 1:numel(RPA_D_Bound_NumProteins)
+            RPA_D_Bound_Pos = sort([RPA_D_Bound_Pos,RPA_D_Bound_Cluster(i,1)+(n_D*(0:1:RPA_D_Bound_NumProteins(i)-1))]);
         end
     end
     % 4: RPA-D (Open)
@@ -73,8 +73,8 @@ function [x] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D)
         % cluster along the ssDNA lattice
         RPA_D_Open_NumProteins = (RPA_D_Open_Cluster(:,2)/n_D).';
         % Record the positions of each hinged open RPA-D protein
-        for i = RPA_D_Open_NumProteins
-            RPA_D_Open_Pos = sort([RPA_D_Open_Pos,RPA_D_Open_Cluster(:,1)+(n_D*(0:1:RPA_D_Open_NumProteins(i)-1))]);
+        for i = 1:numel(RPA_D_Open_NumProteins)
+            RPA_D_Open_Pos = sort([RPA_D_Open_Pos,RPA_D_Open_Cluster(i,1)+(n_D*(0:1:RPA_D_Open_NumProteins(i)-1))]);
         end
     end
     % 5: RAD51 (this will be used to split up into monomers vs. dimers)
@@ -90,12 +90,14 @@ function [x] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D)
         RAD51_Dim_NumProteins(RAD51_Dim_NumProteins > 1) = ceil(RAD51_Dim_NumProteins(RAD51_Dim_NumProteins > 1));  %takes care of 3 monomers bound together being 2 possible dimers
         RAD51_Dim_NumProteins(RAD51_Dim_NumProteins < 1) = floor(RAD51_Dim_NumProteins(RAD51_Dim_NumProteins < 1)); %rounds number of proteins to whole numbers when less than 1 (0.5 -> Monomer)
         % Record the positions of each RAD51 monomer
-        for i = RAD51_Mon_NumProteins
-            RAD51_Mon_Pos = sort([RAD51_Mon_Pos,RAD51_Cluster(:,1)+(n_RAD51*(0:1:RAD51_Mon_NumProteins(i)-1))]);
+        for i = 1:numel(RAD51_Mon_NumProteins)
+            RAD51_Mon_Pos = sort([RAD51_Mon_Pos,RAD51_Cluster(i,1)+(n_RAD51*(0:1:RAD51_Mon_NumProteins(i)-1))]);
         end
         %Record the positions of each RAD51 dimer
-        for j = find(RAD51_Dim_NumProteins ~= 0)
-            RAD51_Dim_Pos = sort([RAD51_Dim_Pos,RAD51_Cluster(j,1)+(n_RAD51*(0:1:RAD51_Dim_NumProteins(j)-1))]);
+        RAD51_Dim_NumProteins = RAD51_Dim_NumProteins(RAD51_Dim_NumProteins ~= 0);
+        RAD51_Dim_Cluster = RAD51_Cluster(RAD51_Cluster(:,2) > n_RAD51);
+        for j = 1:numel(RAD51_Dim_NumProteins)
+            RAD51_Dim_Pos = sort([RAD51_Dim_Pos,RAD51_Dim_Cluster(j,1)+(n_RAD51*(0:1:RAD51_Dim_NumProteins(j)-1))]);
         end
     end
     
@@ -106,9 +108,31 @@ function [x] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D)
     
     %Check "Open" proteins to see if they can hinge close (micro-binding).
     %Record where they are and count them.
+    if ~isempty(RPA_A_Open_Pos)
+        RPA_A_Open_Bindable = RPA_A_Open_Pos(all(DNA(2,RPA_A_Open_Pos:RPA_A_Open_Pos+(n_A-1)) == 0,'all'));
+    else
+        RPA_A_Open_Bindable = [];
+    end
+    if ~isempty(RPA_D_Open_Pos)
+        RPA_D_Open_Bindable = RPA_D_Open_Pos(all(DNA(2,RPA_D_Open_Pos:RPA_D_Open_Pos+(n_D-1)) == 0,'all'));
+    else
+        RPA_D_Open_Bindable = [];
+    end
+    RPA_A_Bindable_Count = numel(RPA_A_Open_Bindable);  RPA_D_Bindable_Count = numel(RPA_D_Open_Bindable);
     
     %Check "Bound" proteins to see if they can hinge open
     %(micro-unbinding). Record where these are at and count them.
+    if ~isempty(RPA_A_Bound_Pos)
+        RPA_A_Bound_Hingeable = RPA_A_Bound_Pos(all(DNA(1,RPA_A_Bound_Pos:RPA_A_Bound_Pos+(n_A-1)) == 0,'all'));
+    else
+        RPA_A_Bound_Hingeable = [];
+    end
+    if ~isempty(RPA_D_Bound_Pos)
+        RPA_D_Bound_Hingeable = RPA_D_Bound_Pos(all(DNA(1,RPA_D_Bound_Pos:RPA_D_Bound_Pos+(n_D-1)) == 0,'all'));
+    else
+        RPA_D_Bound_Hingeable = [];
+    end
+    RPA_A_Hingeable_Count = numel(RPA_A_Bound_Hingeable);   RPA_D_Hingeable_Count = numel(RPA_D_Bound_Hingeable);
     
     %Organize everything into neat arrays to record final cada
 end
