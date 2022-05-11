@@ -5,12 +5,12 @@
 % Location Arrays: Lists of all locations where each type of protein is
 % bound. The protein type is in the variable name.
 % Counts: Number of bound (or hinged open) proteins of each type.
-%       1: RAD51 Monomer
-%       2: RAD51 Dimer
-%       3: RPA-A Bound
-%       4: RPA-A Hingeable
-%       5: RPA-D Bound
-%       6: RPA-D Hingeable
+%     1 - RPA-A Bound
+%     2 - RPA-A Open
+%     3 - RPA-D Bound
+%     4 - RPA-D Open
+%     5 - RAD51 Monomer
+%     6 - RAD51 Dimer
 
 function [Counts,RAD51_Mon_Bound,RAD51_Dim_Bound,RPA_A_Bound_MicroDiss,RPA_A_Open_MicroBind,RPA_D_Bound_MicroDiss,RPA_D_Open_MicroBind] = LatticeSearch_Bound(DNA,n_RAD51,n_A,n_D)
     n_RPA = n_A+n_D;
